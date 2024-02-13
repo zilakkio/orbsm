@@ -20,9 +20,9 @@ class SimulationSpace:
    * @param parent A celestial body to add an orbit around.
    * @return
    */
-  def addAutoOrbit(body: Body, parent: Body) =
+  def addAutoOrbit(body: Body, parent: Body, reverse: Boolean = false) =
     interactionForces.foreach(force =>
-      body.velocity += force.firstCosmicVelocity(body, parent)
+      body.velocity += force.firstCosmicVelocity(body, parent) * {if reverse then -1 else 1}
     )
     body.velocity += parent.velocity
     addBody(body)

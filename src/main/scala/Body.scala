@@ -6,7 +6,7 @@ import scala.collection.mutable
  *
  * @param position A position vector of the body.
  */
-class Body(var position: Vector2D):
+class Body(var position: Vector2D, var name: String = "Body"):
   var velocity = Vector2D(0.0, 0.0)
   var acceleration = Vector2D(0.0, 0.0)
   var mass: Double = 1.0
@@ -49,3 +49,11 @@ class Body(var position: Vector2D):
    */
   def checkCollision(other: Body): Boolean =
     (this.position - other.position).norm <= this.radius + other.radius
+
+  def positionAU = position / 149597870700.0
+
+  def massEarths = mass / 5.9722e24
+
+  def radiusEarths = radius / 6371000
+
+  override def toString: String = s"\n\n$name\nr = ${positionAU.roundPlaces(3)} AU\nv = ${velocity.roundPlaces(1)} m/s\na = ${acceleration.roundPlaces(5)} m/s/s\nmass = ${massEarths.roundPlaces(5)} earths\nradius = ${radiusEarths.roundPlaces(3)} earth"
