@@ -15,7 +15,7 @@ class Body(var position: Vector2D, var name: String = "Body"):
 
   var orbitPrecision = 10
   val positionHistory = mutable.Buffer[Vector2D](position)
-  var orbitPrecisionCounter = 0
+  private var orbitPrecisionCounter = 0
 
   /** Update the position based on current velocity
    * @param deltaTime Simulation time step.
