@@ -1,3 +1,5 @@
+import Centering.AtBody
+
 import scala.collection.mutable.Buffer
 
 /** an intermediary between the GUI and the simulation space, includes the space and some additional parameters
@@ -55,6 +57,10 @@ class Simulation:
     if targetZoom <= 0 then targetZoom = 0.10
     
   def resetZoom() = setZoom(1.0)
+
+  def cameraVelocity: Vector2D = centering match
+    case AtBody(body) => body.velocity
+    case _ => Vector2D(0.0, 0.0)
 
   def tick(deltaTime: Double) =
     if !stopped then

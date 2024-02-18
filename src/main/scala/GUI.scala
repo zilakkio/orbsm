@@ -1,3 +1,4 @@
+import Centering.AtBody
 import scalafx.animation.AnimationTimer
 import scalafx.application.JFXApp3
 import scalafx.geometry.Insets
@@ -14,13 +15,38 @@ object GUI extends JFXApp3:
   def start() =
     var sim = Simulation()
 
+    {    // set up the default simulation
+      val sun = Body(Vector2D(0.0, 0.0), name="Sun")
+      sun.radius = 109.076 * 6371000.0
+      sun.mass = 333030.262 * 5.9722e24
+      sun.color = Yellow
+
+      val earth = Body(Vector2D(149597870700.0, 0.0), name="Earth")
+      earth.radius = 6371000.0
+      earth.mass = 5.9722e24
+      earth.velocity = Vector2D(0.0, -29780.0)
+      earth.color = Blue
+
+      val moon = Body(Vector2D(149984400000.0, 0.0), name="Moon")
+      moon.radius = 0.2727 * 6371000.0
+      moon.mass = 0.0123000371 * 5.9722e24
+      moon.velocity = Vector2D(0.0, -28758.0)
+
+      sim.space.addBody(sun)
+      sim.space.addBody(moon)
+      sim.space.addBody(earth)
+
+      sim.select(sun)
+      sim.space.interactionForces = Vector(GravitationalForce)
+    }
+
     val minPixelsPerAU = 100.0
     val minMetersPerPixel = 1/minPixelsPerAU * 1.496e11
 
-    var pixelOffset: Vector2D = Vector2D(0.0, 0.0)
-
     def metersPerPixel = minMetersPerPixel / sim.zoom
     def targetPixelOffset = sim.centeringPosition / metersPerPixel
+
+    var pixelOffset: Vector2D = targetPixelOffset
 
     var cursorPixelPosition: Vector2D = Vector2D(0.0, 0.0)
     var cursorPosition: Vector2D = Vector2D(0.0, 0.0)
@@ -35,32 +61,6 @@ object GUI extends JFXApp3:
     def positionToPixel(canvas: Canvas, position: Vector2D): Vector2D =
         (Vector2D(position.x / metersPerPixel + canvas.width.value / 2, position.y / metersPerPixel + canvas.height.value / 2)) - pixelOffset
 
-    def recenterImmediately() =
-      pixelOffset = targetPixelOffset
-
-    val sun = Body(Vector2D(0.0, 0.0), name="Sun")
-    sun.radius = 109.076 * 6371000.0
-    sun.mass = 333030.262 * 5.9722e24
-    sun.color = Yellow
-
-    val earth = Body(Vector2D(149597870700.0, 0.0), name="Earth")
-    earth.radius = 6371000.0
-    earth.mass = 5.9722e24
-    earth.velocity = Vector2D(0.0, -29780.0)
-    earth.color = Blue
-
-    val moon = Body(Vector2D(149984400000.0, 0.0), name="Moon")
-    moon.radius = 0.2727 * 6371000.0
-    moon.mass = 0.0123000371 * 5.9722e24
-    moon.velocity = Vector2D(0.0, -28758.0)
-
-    sim.space.addBody(sun)
-    sim.space.addBody(moon)
-    sim.space.addBody(earth)
-
-    sim.select(earth)
-    sim.space.interactionForces = Vector(GravitationalForce)
-
     stage = new JFXApp3.PrimaryStage:
       title = "Orbital Mechanics Simulator"
       width = 1920
@@ -73,9 +73,10 @@ object GUI extends JFXApp3:
           items = List(itemNew, itemSave)
         menus = List(menuFile)
 
-    val root = GridPane()
+    val root = new BorderPane()
 
     val sidePanel = new VBox:
+      prefWidth = 300
       margin = Insets(10, 0, 0, 10)
       spacing = 10
 
@@ -85,7 +86,6 @@ object GUI extends JFXApp3:
 
       // scroll to zoom
       onScroll = (event) =>
-        val oldZoom = sim.zoom
         if event.getDeltaY > 0 then sim.setZoom(1.10 * sim.zoom)
         else sim.setZoom(sim.zoom / 1.10)
 
@@ -151,9 +151,12 @@ object GUI extends JFXApp3:
     )
 
     // Add child components to the grid
-    root.add(menuBar, 0, 0)
-    root.add(spaceView, 0, 1)
-    root.add(sidePanel, 1, 0, 1, 2)
+//    root.add(menuBar, 0, 0)
+//    root.add(spaceView, 0, 1)
+//    root.add(sidePanel, 1, 0, 1, 2)
+    root.top = menuBar
+    root.right = sidePanel
+    root.center = spaceView
 
     // Define grid row and column size
     val column0 = new ColumnConstraints:
@@ -165,8 +168,8 @@ object GUI extends JFXApp3:
     val row1 = new RowConstraints:
       percentHeight = 98
 
-    root.columnConstraints = Array(column0, column1) // Add constraints in order
-    root.rowConstraints = Array(row0, row1)
+//    root.columnConstraints = Array(column0, column1) // Add constraints in order
+//    root.rowConstraints = Array(row0, row1)
 
     val scene = Scene(parent = root)
 
@@ -210,7 +213,7 @@ object GUI extends JFXApp3:
         case "F" if sim.selectedBody.isDefined => sim.centering = Centering.AtBody(sim.selectedBody.get)      // center at selection
         case "BACK_SPACE" if sim.selectedBody.isDefined => sim.deleteSelection()                              // remove selection
         case "ESCAPE" => sim.deselect()                                                                       // deselect
-        case _ => ()
+        case c => println(c)
 
 
     var lastFrame = 0L
@@ -239,8 +242,12 @@ object GUI extends JFXApp3:
         lastFrame = now
 
         // smooth camera movement
-        sim.zoom += 0.05 * (sim.targetZoom - sim.zoom)
-        pixelOffset += 0.05 * (targetPixelOffset - pixelOffset)
+        val oldZoom = sim.zoom
+        val correction = (deltaTime * sim.speed * 86400 * sim.cameraVelocity) / metersPerPixel
+        sim.zoom += 0.05 * (sim.targetZoom - sim.zoom)             // zoom change animation
+        pixelOffset /= (oldZoom / sim.zoom)                        // fixed: zoom display bug
+        pixelOffset += correction                                  // fixed: moving camera offset bug
+        pixelOffset += 0.05 * (targetPixelOffset - pixelOffset)    // camera position animation
 
         // empty dark space
         gc.fill = Black
@@ -317,9 +324,19 @@ object GUI extends JFXApp3:
         sim.recordFPS(1.0 / deltaTime)
         val avg = sim.getAverageFPS
         gc.fillText(
-          s"${(avg).round.toString} FPS | ${(1000 / avg).round.toString} ms | ${sim.speed.roundPlaces(2)} days/s | ${sim.tool} | ${sim.centering} centering | ${sim.zoom.roundPlaces(1)}x zoom" + { if sim.selectedBody.isDefined then s"${sim.selectedBody.get.toString}" else "" },
-          20, 20)
-
+          f"${(avg).round.toString} FPS | ${(1000 / avg)}%.2f ms | ${sim.speed}%.2f days/s | ${(sim.speed / avg * 24)}%.2f h/frame \n" +
+          f"${sim.tool} | " +
+            f"${
+              sim.centering match
+                case Centering.AtBody(body) => body.name
+                case Centering.Custom(pos) =>
+                  val posAU = pos / 149597870700.0
+                  f"${posAU.x}%.4f  ${posAU.y}%.4f  AU"
+                case _ => sim.centering.toString
+            } centering" +
+           f" | ${sim.zoom}%.2fx zoom" + { if sim.selectedBody.isDefined then s"${sim.selectedBody.get}" else "" },
+          20, 20
+        )
     }
 
     timer.start()

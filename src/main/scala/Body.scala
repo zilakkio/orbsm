@@ -13,7 +13,7 @@ class Body(var position: Vector2D, var name: String = "Body"):
   var radius: Double = 1.0
   var color: Color = Color.White
 
-  var orbitPrecision = 10
+  var orbitPrecision = 1
   val positionHistory = mutable.Buffer[Vector2D](position)
   private var orbitPrecisionCounter = 0
 
@@ -56,4 +56,9 @@ class Body(var position: Vector2D, var name: String = "Body"):
 
   def radiusEarths = radius / 6371000
 
-  override def toString: String = s"\n\n$name\nr = ${positionAU.roundPlaces(3)} AU\nv = ${velocity.roundPlaces(1)} m/s\na = ${acceleration.roundPlaces(5)} m/s/s\nmass = ${massEarths.roundPlaces(5)} earths\nradius = ${radiusEarths.roundPlaces(3)} earth"
+  override def toString: String = f"\n\n$name\n" +
+    f"r = [ ${positionAU.x}%.3f ${positionAU.y}%.3f ] AU\n" +
+    f"v = [ ${velocity.x}%.1f ${velocity.y}%.1f ] m/s\n" +
+    f"a = [ ${acceleration.x * 1000}%.5f ${acceleration.y * 1000}%.5f ] mm/s/s\n" +
+    f"mass = ${massEarths}%.5f earths\n" +
+    f"radius = ${radiusEarths}%.3f earth"
