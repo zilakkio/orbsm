@@ -1,3 +1,5 @@
+import play.api.libs.json._
+
 /** A utility object for handling file I/O
  *
  */

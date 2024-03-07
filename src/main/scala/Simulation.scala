@@ -1,4 +1,5 @@
 import Centering.AtBody
+import engine.{Body, SimulationSpace, Vector3D}
 
 import scala.collection.mutable.Buffer
 
@@ -12,6 +13,7 @@ class Simulation:
   var speed: Double = 1.0
   var stopped: Boolean = false
   var fps: Double = 120
+  var tpf: Double = 10
   val fpsRecords: Buffer[Double] = Buffer()
 
   // GUI-related
@@ -28,6 +30,10 @@ class Simulation:
       sum += record
     )
     sum / fpsRecords.length
+
+  def setTPF(newTPF: Double) =
+    tpf = newTPF
+    if tpf < 1 then tpf = 1
 
   def recordFPS(record: Double) =
     fpsRecords += record
@@ -58,13 +64,14 @@ class Simulation:
     
   def resetZoom() = setZoom(1.0)
 
-  def cameraVelocity: Vector2D = centering match
+  def cameraVelocity: Vector3D = centering match
     case AtBody(body) => body.velocity
-    case _ => Vector2D(0.0, 0.0)
+    case _ => Vector3D(0.0, 0.0)
 
   def tick(deltaTime: Double) =
     if !stopped then
-      space.tick(deltaTime * speed * 86400)
+      for i <- 1 to tpf.toInt do
+        space.tick(deltaTime * speed * 86400 * (1.0 / tpf.toInt.toDouble))
 
 
   /** Update the simulation file.

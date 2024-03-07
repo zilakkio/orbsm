@@ -1,10 +1,13 @@
+package engine
+
+import scala.collection.mutable
 import scala.collection.mutable.*
 
 /** A 2D space where all the bodies are placed and interact.
  *
  */
 class SimulationSpace:
-  val bodies = Buffer[Body]()
+  var bodies = Buffer[Body]()
   var interactionForces = Vector[InteractionForce]()
   var environmentForces = Vector[EnvironmentForce]()
 
@@ -42,8 +45,8 @@ class SimulationSpace:
    * @param body A celestial body for which the forces are calculated.
    * @return
    */
-  def calculateTotalForce(body: Body): Vector2D =
-    var totalForce = Vector2D(0.0, 0.0)
+  def calculateTotalForce(body: Body): Vector3D =
+    var totalForce = Vector3D(0.0, 0.0)
 
     // calculate all interaction forces
     interactionForces.foreach( force =>
@@ -75,14 +78,29 @@ class SimulationSpace:
     bodies.foreach(body =>
       body.updatePosition(deltaTime)  // m
     )
+    updateCollisions()
 
   /** Check for collisions between the bodies and handle them.
+   *
    * @return
    */
-  def updateCollisions() = ???
+  def updateCollisions() =
+    var filtered = bodies
+    for
+      body1 <- bodies
+      body2 <- bodies.filter(_ != body1)
+    do
+      if (body1.position - body2.position).norm <= (body1.radius + body2.radius) then
+        if body1.mass >= body2.mass then
+          body1.mass += body2.mass
+          filtered = bodies.filter(_ != body2)
+        else
+          body2.mass += body1.mass
+          filtered = bodies.filter(_ != body1)
+    bodies = filtered
   
-  def massCenter: Vector2D =
-    var center = Vector2D(0.0, 0.0)
+  def massCenter: Vector3D =
+    var center = Vector3D(0.0, 0.0)
     var totalMass = 0.0
     bodies.foreach(body =>
       totalMass += body.mass
