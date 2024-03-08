@@ -1,7 +1,7 @@
-import Centering.{AtBody, MassCenter}
-import Tool.*
+import tools.Centering.{AtBody, MassCenter}
+import tools.Tool.*
 import engine.{Body, GravitationalForce, Vector3D}
-import gui.{AlertManager, BodyPanel}
+import gui.{AlertManager, BodyPanel, SimPanel}
 import scalafx.animation.AnimationTimer
 import scalafx.application.JFXApp3
 import scalafx.geometry.{Insets, Pos}
@@ -11,9 +11,11 @@ import scalafx.scene.layout.*
 import scalafx.scene.paint.Color.*
 import scalafx.scene.control.*
 import scalafx.scene.paint.Color
-import scalafx.scene.shape.Line
-import scalafx.Includes.jfxColor2sfx
-import scalafx.scene.control.Alert.AlertType
+import scalafx.stage.FileChooser
+import scalafx.stage.FileChooser.ExtensionFilter
+import tools.{Centering, Simulation, Tool}
+import tools.*
+
 
 object GUI extends JFXApp3:
 
@@ -78,6 +80,15 @@ object GUI extends JFXApp3:
     def moveCamera() =
       sim.centering = Centering.Custom(cursorPosition)
 
+    def saveAs() =
+      val filechooser = new FileChooser:
+        title = "Select JSON simulation file"
+        initialDirectory = java.io.File("./src/main/scala/examples")
+        extensionFilters.add(ExtensionFilter("JSON", "*.json"))
+      val file = filechooser.showOpenDialog(stage)
+      FileHandler.save(file.toString, sim)
+      sim.workingFile = file.toString
+
     var ctrlPressed = false
     var shiftPressed = false
 
@@ -86,12 +97,68 @@ object GUI extends JFXApp3:
       width = 1920
       height = 1080
 
+    val root = new BorderPane()
+
+    val sidePanel = new VBox:
+      prefWidth = 300
+      margin = Insets(10, 0, 0, 10)
+      spacing = 10
+
+    val bodyPanelContainer = new VBox()
+    val simPanelContainer = new VBox()
+
+    val spaceView = new Pane()
+
+    simPanelContainer.children = SimPanel(sim)
+
+    def selectBody(body: Body) =
+      sim.select(body)
+      bodyPanelContainer.children = BodyPanel(body)
+
+    def switchSim(newSim: Simulation) =
+      sim = newSim
+      simPanelContainer.children = SimPanel(newSim)
+
+    def deselectBody() =
+      sim.deselect()
+      bodyPanelContainer.children.clear()
+
+    def save() =
+      try
+        FileHandler.save(sim.workingFile, sim)
+      catch
+        case _ => saveAs()
+
+    def load() =
+      val filechooser = new FileChooser:
+        title = "Select JSON simulation file"
+        initialDirectory = java.io.File(".")
+        extensionFilters.add(ExtensionFilter("JSON", "*.json"))
+      val file = filechooser.showOpenDialog(stage)
+      switchSim( FileHandler.load(file.toString) )
+      sim.workingFile = file.toString
+
     val menuBar = new MenuBar:
 
         val menuFile = new Menu("File"):
-          val itemNew = new MenuItem("New...")
-          val itemSave = new MenuItem("Save")
-          items = List(itemNew, itemSave)
+          val itemNew = new MenuItem("New empty simulation"):
+            onAction = (event) =>
+              switchSim(Simulation())
+              val body = Body(Vector3D(0,0))
+              body.mass = 5.9722e24
+              body.radius = 6371000.0
+              sim.space.addBody(body)
+
+          val itemSave = new MenuItem("Save"):
+            onAction = (event) =>
+              save()
+          val itemSaveAs = new MenuItem("Save as..."):
+            onAction = (event) =>
+              saveAs()
+          val itemOpen = new MenuItem("Open..."):
+            onAction = (event) =>
+              load()
+          items = List(itemNew, itemSave, itemSaveAs, itemOpen)
 
         val menuSim = new Menu("Simulation"):
           val itemStart = new MenuItem("Start/Stop \t\t Ctrl+SPACE"):
@@ -130,25 +197,6 @@ object GUI extends JFXApp3:
           items = List(itemCenter, itemFocus, itemResetZoom, itemZoomIn, itemZoomOut)
 
         menus = List(menuFile, menuSim, menuView)
-
-    val root = new BorderPane()
-
-    val sidePanel = new VBox:
-      prefWidth = 300
-      margin = Insets(10, 0, 0, 10)
-      spacing = 10
-
-    val bodyPanelContainer = new VBox()
-
-    val spaceView = new Pane()
-
-    def selectBody(body: Body) =
-      sim.select(body)
-      bodyPanelContainer.children = BodyPanel(body)
-
-    def deselectBody() =
-      sim.deselect()
-      bodyPanelContainer.children.clear()
 
 
     val canvas = new Canvas():
@@ -221,7 +269,7 @@ object GUI extends JFXApp3:
         nothingSelector
       )
 
-    sidePanel.children = Array(toolBox, bodyPanelContainer)
+    sidePanel.children = Array(toolBox, bodyPanelContainer, simPanelContainer)
 
     // add child components
     root.top = menuBar
@@ -282,29 +330,29 @@ object GUI extends JFXApp3:
     // key release
     root.onKeyReleased = (event) =>
       event.getCode.toString match
-        case "Q" if ctrlPressed => sim.tool = Tool.FreeBody                                                                  // free body tool
-        case "A" if ctrlPressed => sim.tool = Tool.AutoOrbit                                                                 // auto-orbit tool
-        case "Z" if ctrlPressed => sim.tool = Tool.Nothing                                                                   // "nothing" tool
+        case "Q" if ctrlPressed => sim.tool = Tool.FreeBody                                                   // free body tool
+        case "A" if ctrlPressed => sim.tool = Tool.AutoOrbit                                                  // auto-orbit tool
+        case "Z" if ctrlPressed => sim.tool = Tool.Nothing                                                    // "nothing" tool
 
-        case "SPACE" if ctrlPressed => sim.stopped = !sim.stopped                                                            // start/stop
+        case "SPACE" if ctrlPressed => sim.stopped = !sim.stopped                                             // start/stop
 
-        case "LEFT" if ctrlPressed => sim.speed /= 2                                                                         // slow down 0.5x
-        case "RIGHT" if ctrlPressed => sim.speed *= 2                                                                        // speed up 2x
-        case "DOWN" if ctrlPressed => sim.setTPF(sim.tpf / 2)                                                                // tickrate 0.5x
-        case "UP" if ctrlPressed => sim.setTPF(sim.tpf * 2)                                                                  // tickrate 2x
+        case "LEFT" if ctrlPressed => sim.speed /= 2                                                          // slow down 0.5x
+        case "RIGHT" if ctrlPressed => sim.speed *= 2                                                         // speed up 2x
+        case "DOWN" if ctrlPressed => sim.setTPF(sim.tpf / 2)                                                 // tickrate 0.5x
+        case "UP" if ctrlPressed => sim.setTPF(sim.tpf * 2)                                                   // tickrate 2x
 
-        case "R" if ctrlPressed => sim.targetZoom = 1.0                                                                      // reset zoom
-        case "EQUALS" if ctrlPressed => sim.targetZoom *= 2                                                                  // zoom 2x
-        case "MINUS" if ctrlPressed => sim.targetZoom *= 0.5                                                                 // zoom 0.5x
+        case "R" if ctrlPressed => sim.targetZoom = 1.0                                                       // reset zoom
+        case "EQUALS" if ctrlPressed => sim.targetZoom *= 2                                                   // zoom 2x
+        case "MINUS" if ctrlPressed => sim.targetZoom *= 0.5                                                  // zoom 0.5x
 
-        case "G" if ctrlPressed => center()                                                                                  // center at mass center
-        case "V" if ctrlPressed => moveCamera()                                                                              // center at cursor position
-        case "F" if sim.selectedBody.isDefined && ctrlPressed => focus()                                                     // center at selection
-        case "E" if ctrlPressed => AlertManager.alert("test")                                                                // test errors
-        case "BACK_SPACE" if sim.selectedBody.isDefined && ctrlPressed => sim.deleteSelection()                              // remove selection
-        case "ESCAPE" => deselectBody()                                                                                      // deselect
+        case "G" if ctrlPressed => center()                                                                   // center at mass center
+        case "V" if ctrlPressed => moveCamera()                                                               // center at cursor position
+        case "F" if sim.selectedBody.isDefined && ctrlPressed => focus()                                      // center at selection
+        case "E" if ctrlPressed => AlertManager.alert("test")                                                 // test errors
+        case "BACK_SPACE" if sim.selectedBody.isDefined && ctrlPressed => sim.deleteSelection()               // remove selection
+        case "ESCAPE" => deselectBody()                                                                       // deselect
 
-        case "L" => toggleLightMode()                                                                                        // light mode
+        case "L" => toggleLightMode()                                                                         // light mode
 
         case "CONTROL" => ctrlPressed = false
         case "SHIFT" => shiftPressed = false
@@ -473,7 +521,7 @@ object GUI extends JFXApp3:
         val avg = sim.getAverageFPS
         gc.fillText(
           f"${(avg).round.toString} FPS | ${(1000 / avg)}%.2f ms | ${sim.speed}%.2f days/s | ${(sim.speed / avg * 24)}%.2f h/frame \n" +
-          f"${((avg).round * sim.tpf).toString} TPS | ${(1000 / avg / sim.tpf)}%.2f ms | ${(sim.speed / avg * 24 / sim.tpf)}%.2f h/tick \n" +
+          { if !sim.stopped then f"${((avg).round * sim.tpf).toString} TPS | ${(1000 / avg / sim.tpf)}%.2f ms | ${(sim.speed / avg * 24 * 60 / sim.tpf)}%.2f min/tick \n" else "0 TPS\n" } +
           f"${sim.tool} | " +
             f"${
               sim.centering match

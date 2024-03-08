@@ -1,5 +1,7 @@
-import Centering.AtBody
+package tools
+
 import engine.{Body, SimulationSpace, Vector3D}
+import tools.Centering.AtBody
 
 import scala.collection.mutable.Buffer
 
@@ -7,13 +9,13 @@ import scala.collection.mutable.Buffer
  *
  */
 class Simulation:
-
-  // simulation-related
-  val space: SimulationSpace = SimulationSpace()
+  var fps: Int = 120
+  var tpf: Double = 10
   var speed: Double = 1.0
   var stopped: Boolean = false
-  var fps: Double = 120
-  var tpf: Double = 10
+  var space: SimulationSpace = SimulationSpace()
+
+  var workingFile: String = ""  
   val fpsRecords: Buffer[Double] = Buffer()
 
   // GUI-related
