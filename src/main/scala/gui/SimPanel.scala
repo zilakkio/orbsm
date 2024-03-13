@@ -13,6 +13,16 @@ class SimPanel(val sim: Simulation) extends VBox:
       text = "Simulation"
       font = Font(32)
 
+    val nameField = new TextField:
+      text = sim.name
+      focused.onChange((_, _, _) =>
+        sim.name = text()
+      )
+
+    val nameHBox = new HBox(nameField):
+      spacing = 10
+      alignment = Pos.CenterLeft
+
     val fpsField = new TextField:
       text = sim.fps.toString
       focused.onChange((_, _, _) =>
@@ -24,7 +34,7 @@ class SimPanel(val sim: Simulation) extends VBox:
       alignment = Pos.CenterLeft
 
     val precisionField = new TextField:
-      text = sim.space.bodies.head.orbitPrecision.toString
+      text = if sim.space.bodies.nonEmpty then sim.space.bodies.head.orbitPrecision.toString else "1"
       focused.onChange((_, _, _) =>
         sim.space.bodies.foreach( body =>
           body.orbitPrecision = text().toInt
@@ -38,6 +48,7 @@ class SimPanel(val sim: Simulation) extends VBox:
     this.spacing = 10
     this.children = Array(
       title,
+      nameHBox,
       fpsHBox,
       precisionHBox
     )

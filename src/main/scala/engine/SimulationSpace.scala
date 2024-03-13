@@ -8,7 +8,7 @@ import scala.collection.mutable.*
  */
 class SimulationSpace:
   var bodies = Buffer[Body]()
-  var interactionForces = Vector[InteractionForce]()
+  var interactionForces = Vector[InteractionForce](GravitationalForce)
   var environmentForces = Vector[EnvironmentForce]()
 
   /** Add a celestial body to the space.
@@ -100,6 +100,8 @@ class SimulationSpace:
     bodies = filtered
   
   def massCenter: Vector3D =
+    if bodies.isEmpty then
+      return Vector3D(0.0, 0.0)
     var center = Vector3D(0.0, 0.0)
     var totalMass = 0.0
     bodies.foreach(body =>

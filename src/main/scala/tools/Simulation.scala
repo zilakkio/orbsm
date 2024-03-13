@@ -1,6 +1,8 @@
 package tools
 
 import engine.{Body, SimulationSpace, Vector3D}
+import scalafx.scene.canvas.Canvas
+import scalafx.scene.paint.Color.Black
 import tools.Centering.AtBody
 
 import scala.collection.mutable.Buffer
@@ -9,6 +11,7 @@ import scala.collection.mutable.Buffer
  *
  */
 class Simulation:
+  var name: String = "New Simulation"
   var fps: Int = 120
   var tpf: Double = 10
   var speed: Double = 1.0
@@ -25,6 +28,21 @@ class Simulation:
   var tool: Tool = Tool.Nothing
 
   var targetZoom: Double = zoom
+  val minPixelsPerAU = 100.0
+  val minMetersPerPixel = 1/minPixelsPerAU * 1.496e11
+
+  def metersPerPixel = minMetersPerPixel / zoom
+  def targetPixelOffset = centeringPosition / metersPerPixel
+
+  var pixelOffset: Vector3D = targetPixelOffset
+  var lastFrame = 0L
+
+  var cursorPosition: Vector3D = Vector3D(0.0, 0.0)
+  var selectableBody: Option[Body] = None
+
+  var centeringWhenEnteredDrag: Option[Vector3D] = None
+
+  var canvas = new Canvas()
 
   def getAverageFPS =
     var sum = 0.0
@@ -41,7 +59,7 @@ class Simulation:
     fpsRecords += record
     if fpsRecords.length > 255 then fpsRecords.remove(0)
 
-  def centeringPosition =
+  def centeringPosition: Vector3D =
     centering match
       case Centering.MassCenter => space.massCenter
       case Centering.Custom(pos) => pos
@@ -74,9 +92,3 @@ class Simulation:
     if !stopped then
       for i <- 1 to tpf.toInt do
         space.tick(deltaTime * speed * 86400 * (1.0 / tpf.toInt.toDouble))
-
-
-  /** Update the simulation file.
-   * @return
-   */
-  def save() = ???
