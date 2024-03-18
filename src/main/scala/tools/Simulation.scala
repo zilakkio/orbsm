@@ -87,8 +87,18 @@ class Simulation:
   def cameraVelocity: Vector3D = centering match
     case AtBody(body) => body.velocity
     case _ => Vector3D(0.0, 0.0)
+  
+  def cameraAcceleration: Vector3D = centering match
+    case AtBody(body) => body.acceleration
+    case _ => Vector3D(0.0, 0.0)
 
   def tick(deltaTime: Double) =
     if !stopped then
       for i <- 1 to tpf.toInt do
         space.tick(deltaTime * speed * 86400 * (1.0 / tpf.toInt.toDouble))
+        
+  def pause() =
+    stopped = true
+  
+  def play() =
+    stopped = false

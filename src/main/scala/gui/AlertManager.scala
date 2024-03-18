@@ -2,24 +2,30 @@ package gui
 
 import scalafx.scene.control.{Alert, ChoiceDialog, Dialog}
 import scalafx.scene.control.Alert.AlertType
-import scalafx.stage.Window
+import scalafx.stage.{StageStyle, Window}
+import tools.Settings
 
 object AlertManager:
   var stage: Option[Window] = None
-  
-  def alert1(message: String) =
-    new Alert(AlertType.Error) {
-      initOwner(stage.get)
-      title = "Error"
-      headerText = "Something went wrong."
-      contentText = message
-    }.showAndWait()
+  var message: Option[String] = None
 
-  def alert(message: String) =
-    val dialog = new ChoiceDialog(defaultChoice = "b", choices = Seq("a", "b", "c")) {
-      initOwner(stage.get)
-      title = "Choice Dialog"
-      headerText = "Look, a Choice Dialog."
-      contentText = "Choose your letter:"
-    }
-    dialog.showAndWait()
+  def alert(text: String) =
+    message = Some(text)
+
+  def get(): Option[Alert] =
+    message match
+      case Some(m) =>
+        val alert = new Alert(AlertType.Error) {
+          initOwner(stage.get)
+          title = "Error"
+          headerText = "Something went wrong!"
+          contentText = m
+          dialogPane().getScene.getWindow.setOnShowing { event =>
+            val window = event.getSource.asInstanceOf[javafx.stage.Window]
+            window.asInstanceOf[javafx.stage.Stage].initStyle(StageStyle.Undecorated)
+          }
+        }
+        alert.dialogPane().getStylesheets.add(getClass.getResource(Settings.theme).toExternalForm)
+        message = None
+        Some(alert)
+      case None => None

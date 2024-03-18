@@ -2,13 +2,16 @@ package gui
 
 import scalafx.Includes.jfxColor2sfx
 import scalafx.scene.control.{ColorPicker, Label, TextField}
-import scalafx.scene.layout.{HBox, VBox}
+import scalafx.scene.layout.{ColumnConstraints, GridPane, HBox, VBox}
 import tools.Simulation
 import engine.*
-import scalafx.geometry.Pos
+import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.text.Font
 
-class SimPanel(val sim: Simulation) extends VBox:
+class SimPanel(val sim: Simulation) extends GridPane:
+
+    padding = Insets(20, 20, 10, 10)
+
     val title = new Label:
       text = "Simulation"
       font = Font(32)
@@ -19,36 +22,26 @@ class SimPanel(val sim: Simulation) extends VBox:
         sim.name = text()
       )
 
-    val nameHBox = new HBox(nameField):
-      spacing = 10
-      alignment = Pos.CenterLeft
-
     val fpsField = new TextField:
       text = sim.fps.toString
       focused.onChange((_, _, _) =>
         sim.fps = text().toInt
       )
 
-    val fpsHBox = new HBox(new Label("FPS:"), fpsField):
-      spacing = 10
-      alignment = Pos.CenterLeft
+    this.hgap = 10
+    this.vgap = 10
 
-    val precisionField = new TextField:
-      text = if sim.space.bodies.nonEmpty then sim.space.bodies.head.orbitPrecision.toString else "1"
-      focused.onChange((_, _, _) =>
-        sim.space.bodies.foreach( body =>
-          body.orbitPrecision = text().toInt
-        )
-      )
+    val labelColumn = new ColumnConstraints()
+    labelColumn.minWidth = 120
 
-    val precisionHBox = new HBox(new Label("Orbits precision:"), precisionField):
-      spacing = 10
-      alignment = Pos.CenterLeft
+    val inputColumn = new ColumnConstraints()
+    inputColumn.minWidth = 100
 
-    this.spacing = 10
-    this.children = Array(
-      title,
-      nameHBox,
-      fpsHBox,
-      precisionHBox
-    )
+    columnConstraints.addAll(labelColumn, inputColumn)
+
+    add(title, 0, 0, 2, 1)
+
+    add(nameField, 0, 1, 2, 1)
+
+    add(Label("Target FPS:"), 0, 2)
+    add(fpsField, 1, 2)

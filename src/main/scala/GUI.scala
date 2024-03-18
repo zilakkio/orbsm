@@ -1,9 +1,10 @@
 import tools.Centering.{AtBody, MassCenter}
 import tools.Tool.*
 import engine.{Body, GravitationalForce, Vector3D}
-import gui.{AlertManager, BodyPanel, SimPanel}
+import gui.AlertManager.stage
+import gui.{AlertManager, BodyPanel, SimPanel, BodyDialog}
 import scalafx.animation.AnimationTimer
-import scalafx.application.JFXApp3
+import scalafx.application.{JFXApp3, Platform}
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
 import scalafx.scene.canvas.Canvas
@@ -11,10 +12,11 @@ import scalafx.scene.layout.*
 import scalafx.scene.paint.Color.*
 import scalafx.scene.control.*
 import scalafx.scene.paint.Color
-import scalafx.stage.FileChooser
+import scalafx.stage.{FileChooser, StageStyle}
 import scalafx.stage.FileChooser.ExtensionFilter
 import tools.{Centering, Simulation, Tool}
 import tools.*
+import java.util.NoSuchElementException
 
 import scala.collection.mutable.Buffer
 
@@ -63,6 +65,7 @@ object GUI extends JFXApp3:
       title = "Orbital Mechanics Simulator"
       width = 1920
       height = 1080
+      fullScreen = true
 
     val root = new BorderPane()
 
@@ -117,28 +120,44 @@ object GUI extends JFXApp3:
 
         // mouse click
         onMouseClicked = (event) =>
-          val clickPosition = pixelToPosition(this, event.getX, event.getY)
+          event.getButton.toString match
+            case "PRIMARY" =>
+              val clickPosition = pixelToPosition(this, event.getX, event.getY)
 
-          // create a free body
-          if sim.tool == Tool.FreeBody && sim.selectableBody.isEmpty then
-            val body = Body(clickPosition)
-            body.mass = 5.9722e24
-            body.radius = 6371000.0
-            sim.space.addBody(body)
-            selectBody(body)
-            sim.tool = Tool.Nothing
+              // create a free body
+              if sim.tool == Tool.FreeBody && sim.selectableBody.isEmpty then
+                val body = Body(clickPosition)
+                body.mass = Settings.earthMass
+                body.radius = Settings.earthRadius
+                if BodyDialog(stage, body).process(sim) then
+                  sim.space.addBody(body)
+                  selectBody(body)
+                sim.tool = Tool.Nothing
 
-          // create an auto orbit
-          else if sim.tool == Tool.AutoOrbit && sim.selectedBody.isDefined && sim.selectableBody.isEmpty then
-            val body = Body(clickPosition)
-            body.mass = 5.9722e24
-            body.radius = 6371000.0
-            sim.space.addAutoOrbit(body, sim.selectedBody.get)
-            selectBody(body)
-            sim.tool = Tool.Nothing
+              // create an auto orbit
+              else if sim.tool == Tool.AutoOrbit && sim.selectedBody.isDefined && sim.selectableBody.isEmpty then
+                val body = Body(clickPosition)
+                body.mass = Settings.earthMass
+                body.radius = Settings.earthRadius
+                sim.space.addAutoOrbit(body, sim.selectedBody.get)
+                if BodyDialog(stage, body).process(sim) then
+                  selectBody(body)
+                else
+                  sim.space.removeBody(body)
+                sim.tool = Tool.Nothing
 
-          else
-            if sim.selectableBody.isDefined then selectBody(sim.selectableBody.get)
+              else
+                if sim.selectableBody.isDefined then selectBody(sim.selectableBody.get)
+
+            case "SECONDARY" =>
+              sim.selectableBody match
+                case Some(selection) =>
+                  sim.pause()
+                  BodyDialog(stage, selection).showAndWait()
+                  sim.play()
+                case None => ()
+
+
 
 
         onMouseMoved = (event) =>
@@ -354,38 +373,34 @@ object GUI extends JFXApp3:
         case "BACK_SPACE" if sim.selectedBody.isDefined && ctrlPressed => sim.deleteSelection()               // remove selection
         case "ESCAPE" => deselectBody()                                                                       // deselect
 
+        case "F11" => stage.fullScreen = !stage.isFullScreen
+
         case "L" => toggleLightMode()                                                                         // light mode
 
         case "CONTROL" => ctrlPressed = false
         case "SHIFT" => shiftPressed = false
         case c => ()
 
+    switchSim(FileHandler.load("./src/main/scala/examples/solarsystem.json"))
+
     var simDT = 1.0
     val timer = AnimationTimer { now =>
+      try {
       for tabSim <- tabSimulations do
         val gc = tabSim.canvas.graphicsContext2D
 
-        // calculate dt
+        // calculate dt and tick
         val deltaTime = (now - tabSim.lastFrame) / 1e9
         if deltaTime < 1 then tabSim.tick(deltaTime)
         if tabSim == sim then
           simDT = deltaTime
         tabSim.lastFrame = now
 
-        // smooth camera movement
-        val oldZoom = tabSim.zoom
-        val correction = (tabSim.cameraVelocity * deltaTime * tabSim.speed * 86400 * (if tabSim.stopped then 0 else 1)) / tabSim.metersPerPixel
-        tabSim.zoom += 0.05 * (tabSim.targetZoom - tabSim.zoom)             // zoom change animation
-        tabSim.pixelOffset /= (oldZoom / tabSim.zoom)                        // fixed: zoom display bug
-        tabSim.pixelOffset += correction                                  // fixed: moving camera offset bug
-        tabSim.pixelOffset += (tabSim.targetPixelOffset - tabSim.pixelOffset) * 0.05    // camera position animation
-
-
       val simGC = sim.canvas.graphicsContext2D
       
       // calculate the current cursor position
       sim.cursorPosition = pixelToPosition(sim.canvas, cursorPixelPosition.x, cursorPixelPosition.y)
-      
+
       // calculate drag
       cursorDragEnterPixelPosition match
         case Some(enterPixelPosition: Vector3D) =>
@@ -401,6 +416,24 @@ object GUI extends JFXApp3:
       // empty dark space
       simGC.fill = if lightMode then LightGray else Black
       simGC.fillRect(0, 0, sim.canvas.width.value, sim.canvas.height.value)
+
+      // smooth camera movement
+      val oldZoom = sim.zoom
+      sim.zoom += 0.05 * (sim.targetZoom - sim.zoom)                               // zoom change animation
+      val correction = ((sim.cameraVelocity + sim.cameraAcceleration * simDT / 2) * (oldZoom / sim.zoom) * (sim.speed) *
+        simDT * 86400 * (if sim.stopped then 0 else 1)) / sim.metersPerPixel
+      sim.pixelOffset /= (oldZoom / sim.zoom)                                      // fixed: zoom display bug
+      sim.pixelOffset += correction                                                // fixed: moving camera offset bug
+      val positionChange =
+      sim.pixelOffset += (sim.targetPixelOffset - sim.pixelOffset) * 0.05          // camera position animation
+
+      // val oldZoom = sim.zoom
+      // val correction = ((sim.cameraVelocity ) * simDT
+      //   * sim.speed * 86400 * (if sim.stopped then 0 else 1)) / sim.metersPerPixel               // new correction with acceleration
+      // sim.zoom += 0.05 * (sim.targetZoom - sim.zoom)             // zoom change animation
+      // sim.pixelOffset /= (oldZoom / sim.zoom)                        // zoom display bug fixed
+      // sim.pixelOffset += correction                                  // moving camera offset bug (attempt to fix)
+      // sim.pixelOffset += (sim.targetPixelOffset - sim.pixelOffset) * 0.05    // camera position animation
           
       // draw the tool-specific visuals
       simGC.stroke = Gray
@@ -431,8 +464,14 @@ object GUI extends JFXApp3:
         case _ =>
           ()
 
-      // draw the paths
+      // update the orbit precisions and draw the trails
       sim.space.bodies.foreach(body =>
+
+        val orbitRadius = body.velocity.norm * body.velocity.norm / body.acceleration.norm
+        val orbitLengthPixel = (orbitRadius * 2 * Settings.pi) / sim.metersPerPixel
+        val speedPixel = body.velocity.norm / sim.metersPerPixel
+        body.setOrbitPrecision((orbitLengthPixel / (speedPixel) / (sim.speed * 86400)) * sim.tpf)
+
         val drawRadius = bodyDrawRadius(body)
         simGC.lineWidth = 1
         var pos = positionToPixel(sim.canvas, body.positionHistory.head)
@@ -541,6 +580,17 @@ object GUI extends JFXApp3:
          f" | ${sim.zoom}%.2fx zoom" + { if sim.selectedBody.isDefined then s"${sim.selectedBody.get}" else "" },
         20, 20
       )
+
+      // alerts
+      Platform.runLater {
+        val alert = AlertManager.get()
+        alert match
+          case Some(a) => a.showAndWait()
+          case None => ()
+      }
+     }
+     catch
+       case e => AlertManager.alert(e.toString)
     }
 
     timer.start()

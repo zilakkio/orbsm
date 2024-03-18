@@ -1,6 +1,7 @@
 package engine
 
 import scalafx.scene.paint.Color
+import tools.Settings
 
 import scala.collection.mutable
 
@@ -14,8 +15,8 @@ class Body(var position: Vector3D, var name: String = "Body"):   // m
   var mass: Double = 1.0                    // kg
   var radius: Double = 1.0                  // m
   var color: Color = Color.White
-  var orbitPrecision = 1
   val positionHistory = mutable.Buffer[Vector3D](position)
+  var orbitPrecision: Int = 1
   private var orbitPrecisionCounter = 0
 
   /** Update the position based on current velocity
@@ -54,11 +55,15 @@ class Body(var position: Vector3D, var name: String = "Body"):   // m
   def setOrbitPrecision(value: String) =
     orbitPrecision = value.toInt
 
-  def positionAU = position / 149597870700.0
+  def setOrbitPrecision(value: Double) =
+    orbitPrecision = value.toInt
+    orbitPrecision = if orbitPrecision != 0 then orbitPrecision else 1
 
-  def massEarths = mass / 5.9722e24
+  def positionAU = position / Settings.metersPerAU
 
-  def radiusEarths = radius / 6371000
+  def massEarths = mass / Settings.earthMass
+
+  def radiusEarths = radius / Settings.earthRadius
 
   override def toString: String = f"\n\n$name\n" +
     f"r = [ ${positionAU.x}%.3f ${positionAU.y}%.3f ${positionAU.z}%.3f ] AU\n" +

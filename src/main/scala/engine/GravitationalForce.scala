@@ -1,6 +1,6 @@
 package engine
 
-import scala.math.{pow, tan}
+import scala.math.pow
 
 /** The default gravity implementation
  *

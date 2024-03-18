@@ -24,6 +24,7 @@ class SimulationSpace:
    * @return
    */
   def addAutoOrbit(body: Body, parent: Body, reverse: Boolean = false) =
+    var v = Vector3D(0.0, 0.0)
     interactionForces.foreach(force =>
       body.velocity += force.firstCosmicVelocity(body, parent) * {if reverse then -1 else 1}
     )

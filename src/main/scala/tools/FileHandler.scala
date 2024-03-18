@@ -43,21 +43,21 @@ implicit val bodyRW: ReadWriter[Body] = readwriter[ujson.Value].bimap[Body](
     "name" -> body.name,
     "mass" -> body.massEarths,
     "radius" -> body.radiusEarths,
-    "position" -> writeJs(body.position / 149597870700.0)(vectorRW),
+    "position" -> writeJs(body.position / Settings.metersPerAU)(vectorRW),
     "velocity" -> writeJs(body.velocity)(vectorRW),
     "color" -> writeJs(body.color)(colorRW)
   ),
   json => {
     val obj = json.obj
     val body = Body(
-      read[Vector3D](obj("position"))(vectorRW) * 149597870700.0,
+      read[Vector3D](obj("position"))(vectorRW) * Settings.metersPerAU,
       obj("name").str,
     )
     val massEarths = obj("mass").num
     val radiusEarths = obj("radius").num
     body.velocity = read[Vector3D](obj("velocity"))(vectorRW)
-    body.mass = massEarths * 5.9722e24
-    body.radius = radiusEarths * 6371000
+    body.mass = massEarths * Settings.earthMass
+    body.radius = radiusEarths * Settings.earthRadius
     body.color = read[Color](obj("color"))(colorRW)
     body
   }
@@ -72,7 +72,6 @@ implicit val spaceRW: ReadWriter[SimulationSpace] = readwriter[ujson.Value].bima
     val arr = json.obj("bodies").arr
     for body <- arr do
       space.addBody(read[Body](body)(bodyRW))
-    space.interactionForces = space.interactionForces.appended(GravitationalForce)
     space
   }
 )
