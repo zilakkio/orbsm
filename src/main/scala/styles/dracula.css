@@ -4,90 +4,90 @@
 
 .root {
   -fx-font-family: "Inter Medium";
-  -color-dark: rgb(0, 0, 0);
-  -color-light: rgb(255, 255, 255);
-  -color-base-0: #f2f2f7;
-  -color-base-1: #e5e5ea;
-  -color-base-2: #d1d1d6;
-  -color-base-3: #aeaeb2;
-  -color-base-4: rgb(142, 142, 147);
-  -color-base-5: rgb(99, 99, 102);
-  -color-base-6: rgb(72, 72, 74);
-  -color-base-7: rgb(58, 58, 60);
-  -color-base-8: rgb(44, 44, 46);
-  -color-base-9: rgb(28, 28, 30);
-  -color-accent-0: #c2e0ff;
-  -color-accent-1: #9dceff;
-  -color-accent-2: #78bbff;
-  -color-accent-3: #54a9ff;
-  -color-accent-4: #2f96ff;
-  -color-accent-5: rgb(10, 132, 255);
-  -color-accent-6: #0970d9;
-  -color-accent-7: #075cb3;
-  -color-accent-8: #06498c;
-  -color-accent-9: #043566;
-  -color-success-0: #ccf5d2;
-  -color-success-1: #adefb7;
-  -color-success-2: #8ee99c;
-  -color-success-3: #70e381;
-  -color-success-4: #51dd66;
-  -color-success-5: rgb(50, 215, 75);
-  -color-success-6: #2bb740;
-  -color-success-7: #239735;
-  -color-success-8: #1c7629;
-  -color-success-9: #14561e;
-  -color-warning-0: #ffe7c2;
-  -color-warning-1: #ffd99d;
-  -color-warning-2: #ffca78;
-  -color-warning-3: #ffbc54;
-  -color-warning-4: #ffad2f;
-  -color-warning-5: rgb(255, 159, 10);
-  -color-warning-6: #d98709;
-  -color-warning-7: #b36f07;
-  -color-warning-8: #8c5706;
-  -color-warning-9: #664004;
-  -color-danger-0: #ffd1ce;
-  -color-danger-1: #ffb5b0;
-  -color-danger-2: #ff9993;
-  -color-danger-3: #ff7d75;
-  -color-danger-4: #ff6158;
-  -color-danger-5: rgb(255, 69, 58);
-  -color-danger-6: #d93b31;
-  -color-danger-7: #b33029;
-  -color-danger-8: #8c2620;
-  -color-danger-9: #661c17;
-  -color-fg-default: rgb(255, 255, 255);
-  -color-fg-muted: #aeaeb2;
-  -color-fg-subtle: rgb(141, 141, 147);
-  -color-fg-emphasis: rgb(255, 255, 255);
-  -color-bg-default: rgb(28, 28, 30);
-  -color-bg-overlay: rgb(28, 28, 30);
-  -color-bg-subtle: rgb(44, 44, 46);
-  -color-bg-inset: #0b0b0c;
-  -color-border-default: rgb(72, 72, 74);
-  -color-border-muted: rgb(58, 58, 60);
-  -color-border-subtle: rgb(49, 49, 52);
-  -color-shadow-default: rgb(0, 0, 0);
-  -color-neutral-emphasis-plus: rgb(142, 142, 147);
-  -color-neutral-emphasis: rgb(142, 142, 147);
-  -color-neutral-muted: rgba(99, 99, 102, 0.4);
-  -color-neutral-subtle: rgba(99, 99, 102, 0.1);
-  -color-accent-fg: #2f96ff;
-  -color-accent-emphasis: rgb(10, 132, 255);
-  -color-accent-muted: rgba(10, 132, 255, 0.4);
-  -color-accent-subtle: rgba(10, 132, 255, 0.15);
-  -color-warning-fg: rgb(255, 159, 10);
-  -color-warning-emphasis: #d98709;
-  -color-warning-muted: rgba(255, 159, 10, 0.4);
-  -color-warning-subtle: rgba(255, 159, 10, 0.15);
-  -color-success-fg: rgb(50, 215, 75);
-  -color-success-emphasis: #2bb740;
-  -color-success-muted: rgba(50, 215, 75, 0.4);
-  -color-success-subtle: rgba(50, 215, 75, 0.15);
-  -color-danger-fg: rgb(255, 69, 58);
-  -color-danger-emphasis: rgb(255, 69, 58);
-  -color-danger-muted: rgba(255, 69, 58, 0.4);
-  -color-danger-subtle: rgba(255, 69, 58, 0.15);
+  -color-dark: #0d0e12;
+  -color-light: #f8f8f2;
+  -color-base-0: #d4d4d7;
+  -color-base-1: #bfbfc3;
+  -color-base-2: #94959b;
+  -color-base-3: #7e7f86;
+  -color-base-4: #696a72;
+  -color-base-5: #53555e;
+  -color-base-6: #3d3f4a;
+  -color-base-7: #282a36;
+  -color-base-8: #181920;
+  -color-base-9: #0d0e12;
+  -color-accent-0: #e5dfff;
+  -color-accent-1: #d5ccff;
+  -color-accent-2: #c5b9ff;
+  -color-accent-3: #b5a6ff;
+  -color-accent-4: #a593ff;
+  -color-accent-5: #9580ff;
+  -color-accent-6: #7f6dd9;
+  -color-accent-7: #685ab3;
+  -color-accent-8: #52468c;
+  -color-accent-9: #3c3366;
+  -color-success-0: #e2ffdf;
+  -color-success-1: #d0ffcc;
+  -color-success-2: #bfffb9;
+  -color-success-3: #adffa6;
+  -color-success-4: #9cff93;
+  -color-success-5: #8AFF80;
+  -color-success-6: #75d96d;
+  -color-success-7: #61b35a;
+  -color-success-8: #4c8c46;
+  -color-success-9: #376633;
+  -color-warning-0: #fff2df;
+  -color-warning-1: #ffeacc;
+  -color-warning-2: #ffe2b9;
+  -color-warning-3: #ffdaa6;
+  -color-warning-4: #ffd293;
+  -color-warning-5: #FFCA80;
+  -color-warning-6: #d9ac6d;
+  -color-warning-7: #b38d5a;
+  -color-warning-8: #8c6f46;
+  -color-warning-9: #665133;
+  -color-danger-0: #ffe5df;
+  -color-danger-1: #ffd5cc;
+  -color-danger-2: #ffc5b9;
+  -color-danger-3: #ffb5a6;
+  -color-danger-4: #ffa593;
+  -color-danger-5: #FF9580;
+  -color-danger-6: #d97f6d;
+  -color-danger-7: #b3685a;
+  -color-danger-8: #8c5246;
+  -color-danger-9: #663c33;
+  -color-fg-default: #f8f8f2;
+  -color-fg-muted: #bfbfc3;
+  -color-fg-subtle: #7e7f86;
+  -color-fg-emphasis: #0d0e12;
+  -color-bg-default: #282a36;
+  -color-bg-overlay: #282a36;
+  -color-bg-subtle: #3d3f4a;
+  -color-bg-inset: #181920;
+  -color-border-default: #685ab3;
+  -color-border-muted: #52468c;
+  -color-border-subtle: #3c3366;
+  -color-shadow-default: #0d0e12;
+  -color-neutral-emphasis-plus: #94959b;
+  -color-neutral-emphasis: #7e7f86;
+  -color-neutral-muted: rgba(126, 127, 134, 0.4);
+  -color-neutral-subtle: rgba(148, 149, 155, 0.1);
+  -color-accent-fg: #9580ff;
+  -color-accent-emphasis: #9580ff;
+  -color-accent-muted: rgba(149, 128, 255, 0.4);
+  -color-accent-subtle: rgba(149, 128, 255, 0.1);
+  -color-warning-fg: #FFCA80;
+  -color-warning-emphasis: #FFCA80;
+  -color-warning-muted: rgba(255, 202, 128, 0.4);
+  -color-warning-subtle: rgba(255, 202, 128, 0.1);
+  -color-success-fg: #8AFF80;
+  -color-success-emphasis: #8AFF80;
+  -color-success-muted: rgba(138, 255, 128, 0.4);
+  -color-success-subtle: rgba(138, 255, 128, 0.1);
+  -color-danger-fg: #FF9580;
+  -color-danger-emphasis: #FF9580;
+  -color-danger-muted: rgba(255, 149, 128, 0.4);
+  -color-danger-subtle: rgba(255, 149, 128, 0.1);
   -color-chart-1: #f3622d;
   -color-chart-2: #fba71b;
   -color-chart-3: #57b757;
@@ -413,10 +413,10 @@ Text {
 }
 
 .button {
-  -color-button-bg: rgb(28, 28, 30);
+  -color-button-bg: -color-bg-subtle;
   -color-button-fg: -color-fg-default;
   -color-button-border: -color-border-default;
-  -color-button-bg-hover: -color-base-6;
+  -color-button-bg-hover: -color-base-5;
   -color-button-fg-hover: -color-button-fg;
   -color-button-border-hover: -color-button-border;
   -color-button-bg-focused: -color-button-bg;
@@ -432,8 +432,7 @@ Text {
   -fx-graphic-text-gap: 6px;
   -fx-text-fill: -color-button-fg;
   -fx-alignment: CENTER;
-  -fx-effect: dropshadow(gaussian, -color-button-shadow, 3px, -2, 0, 1);
-  -fx-padding: 6px 12px 6px 12px;
+  -fx-padding: 8px 12px 8px 12px;
 }
 .button .font-icon, .button .ikonli-font-icon {
   -fx-icon-color: -color-button-fg;
@@ -447,7 +446,7 @@ Text {
   -fx-stroke: -color-button-fg;
 }
 .button.button-icon {
-  -fx-padding: 6px;
+  -fx-padding: 8px;
   -fx-content-display: graphic-only;
 }
 .button.button-circle {
@@ -511,7 +510,7 @@ Text {
 .button.button-outlined {
   -color-button-bg: -color-bg-default;
   -color-button-fg: -color-fg-default;
-  -color-button-bg-hover: -color-base-6;
+  -color-button-bg-hover: -color-base-5;
   -color-button-fg-hover: -color-button-fg;
 }
 .button:default, .button.accent {
@@ -545,7 +544,7 @@ Text {
   -color-button-bg-hover: -color-success-emphasis;
   -color-button-fg-hover: -color-fg-emphasis;
   -color-button-border-hover: -color-success-emphasis;
-  -color-button-bg-focused: -color-success-7;
+  -color-button-bg-focused: -color-success-6;
   -color-button-fg-focused: -color-fg-emphasis;
   -color-button-border-focused: -color-success-emphasis;
   -color-button-bg-pressed: -color-success-emphasis;
@@ -605,11 +604,11 @@ Text {
   -fx-underline: true;
 }
 .button.small {
-  -fx-padding: 4.2857142857px 8.5714285714px 4.2857142857px 8.5714285714px;
+  -fx-padding: 5.7142857143px 8.5714285714px 5.7142857143px 8.5714285714px;
   -fx-font-size: 0.8em;
 }
 .button.large {
-  -fx-padding: 8.4px 16.8px 8.4px 16.8px;
+  -fx-padding: 11.2px 16.8px 11.2px 16.8px;
   -fx-font-size: 1.25em;
 }
 .button.rounded {
@@ -705,7 +704,7 @@ Text {
   -fx-background-insets: 0, 1px;
 }
 .combo-box-base > .arrow-button {
-  -fx-padding: 6px 12px 6px 12px;
+  -fx-padding: 8px 12px 8px 12px;
 }
 .combo-box-base > .arrow-button > .arrow {
   -fx-shape: "M12 5.83L15.17 9l1.41-1.41L12 3 7.41 7.59 8.83 9 12 5.83zm0 12.34L8.83 15l-1.41 1.41L12 21l4.59-4.59L15.17 15 12 18.17z";
@@ -730,7 +729,7 @@ Text {
 .combo-box > .list-cell {
   -fx-background-color: transparent;
   -fx-text-fill: -color-fg-default;
-  -fx-padding: 6px 12px 6px 12px;
+  -fx-padding: 8px 12px 8px 12px;
   -fx-graphic-text-gap: 6px;
 }
 .combo-box:success > .list-cell {
@@ -752,7 +751,7 @@ Text {
   -fx-cell-size: 0;
   -fx-background-color: -color-bg-default;
   -fx-background-radius: 6px, 5px;
-  -fx-padding: 6px 12px 6px 12px;
+  -fx-padding: 8px 12px 8px 12px;
   -fx-graphic-text-gap: 6px;
   -fx-text-fill: -color-fg-default;
 }
@@ -787,7 +786,7 @@ Text {
   -fx-text-fill: -color-fg-default;
   -fx-alignment: CENTER;
   -fx-content-display: LEFT;
-  -fx-padding: 6px 12px 6px 12px;
+  -fx-padding: 8px 12px 8px 12px;
 }
 .choice-box:disabled {
   -fx-opacity: 0.4;
@@ -915,9 +914,9 @@ Text {
 .list-view {
   -color-cell-bg: -color-bg-default;
   -color-cell-fg: -color-fg-default;
-  -color-cell-bg-selected: -color-base-6;
+  -color-cell-bg-selected: -color-accent-subtle;
   -color-cell-fg-selected: -color-fg-default;
-  -color-cell-bg-selected-focused: -color-base-6;
+  -color-cell-bg-selected-focused: -color-accent-subtle;
   -color-cell-fg-selected-focused: -color-fg-default;
   -color-cell-bg-odd: -color-bg-subtle;
   -color-cell-border: -color-border-default;
@@ -963,9 +962,9 @@ Text {
 .table-view {
   -color-cell-bg: -color-bg-default;
   -color-cell-fg: -color-fg-default;
-  -color-cell-bg-selected: -color-base-6;
+  -color-cell-bg-selected: -color-accent-subtle;
   -color-cell-fg-selected: -color-fg-default;
-  -color-cell-bg-selected-focused: -color-base-6;
+  -color-cell-bg-selected-focused: -color-accent-subtle;
   -color-cell-fg-selected-focused: -color-fg-default;
   -color-cell-bg-odd: -color-bg-subtle;
   -color-cell-border: -color-border-default;
@@ -973,8 +972,8 @@ Text {
   -fx-border-color: -color-cell-border;
   -fx-border-width: 1px;
   -fx-border-radius: 0;
-  -color-header-bg: -color-bg-default;
-  -color-header-fg: -color-fg-muted;
+  -color-header-bg: -color-bg-subtle;
+  -color-header-fg: -color-fg-default;
 }
 .table-view > .virtual-flow > .corner {
   -fx-background-color: -color-cell-border;
@@ -1124,9 +1123,9 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 .tree-view {
   -color-cell-bg: -color-bg-default;
   -color-cell-fg: -color-fg-default;
-  -color-cell-bg-selected: -color-base-6;
+  -color-cell-bg-selected: -color-accent-subtle;
   -color-cell-fg-selected: -color-fg-default;
-  -color-cell-bg-selected-focused: -color-base-6;
+  -color-cell-bg-selected-focused: -color-accent-subtle;
   -color-cell-fg-selected-focused: -color-fg-default;
   -color-cell-bg-odd: -color-bg-subtle;
   -color-cell-border: -color-border-default;
@@ -1190,9 +1189,9 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 .tree-table-view {
   -color-cell-bg: -color-bg-default;
   -color-cell-fg: -color-fg-default;
-  -color-cell-bg-selected: -color-base-6;
+  -color-cell-bg-selected: -color-accent-subtle;
   -color-cell-fg-selected: -color-fg-default;
-  -color-cell-bg-selected-focused: -color-base-6;
+  -color-cell-bg-selected-focused: -color-accent-subtle;
   -color-cell-fg-selected-focused: -color-fg-default;
   -color-cell-bg-odd: -color-bg-subtle;
   -color-cell-border: -color-border-default;
@@ -1200,8 +1199,8 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -fx-border-color: -color-cell-border;
   -fx-border-width: 1px;
   -fx-border-radius: 0;
-  -color-header-bg: -color-bg-default;
-  -color-header-fg: -color-fg-muted;
+  -color-header-bg: -color-bg-subtle;
+  -color-header-fg: -color-fg-default;
 }
 .tree-table-view > .virtual-flow > .corner {
   -fx-background-color: -color-cell-border;
@@ -1582,7 +1581,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -fx-background-color: transparent;
   -fx-background-insets: 0 0 1px 0;
   -fx-background-radius: 5px;
-  -fx-padding: 4px 10px 4px 10px;
+  -fx-padding: 6px 10px 6px 10px;
   -fx-effect: none;
 }
 .menu-bar > .container > .menu-button > .label {
@@ -1597,7 +1596,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -fx-background-color: transparent;
 }
 .menu-bar > .container > .menu-button:hover, .menu-bar > .container > .menu-button:focused, .menu-bar > .container > .menu-button:showing {
-  -fx-background-color: -color-base-6, -color-base-6;
+  -fx-background-color: -color-base-5, -color-base-5;
 }
 
 .menu {
@@ -1625,7 +1624,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 
 .menu-item {
   -fx-background-color: -color-bg-default;
-  -fx-padding: 6px 12px 6px 12px;
+  -fx-padding: 8px 12px 8px 12px;
   -fx-background-radius: 5px;
 }
 .menu-item > .graphic-container {
@@ -1677,7 +1676,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 }
 
 .caption-menu-item {
-  -fx-padding: 6px 12px 6px 12px;
+  -fx-padding: 8px 12px 8px 12px;
 }
 .caption-menu-item:hover, .caption-menu-item:focused, .caption-menu-item:pressed {
   -fx-background-color: transparent;
@@ -1724,10 +1723,10 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 
 .menu-button,
 .split-menu-button {
-  -color-button-bg: rgb(28, 28, 30);
+  -color-button-bg: -color-bg-subtle;
   -color-button-fg: -color-fg-default;
   -color-button-border: -color-border-default;
-  -color-button-bg-hover: -color-base-6;
+  -color-button-bg-hover: -color-base-5;
   -color-button-fg-hover: -color-button-fg;
   -color-button-border-hover: -color-button-border;
   -color-button-bg-focused: -color-button-bg;
@@ -1743,7 +1742,6 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -fx-graphic-text-gap: 6px;
   -fx-text-fill: -color-button-fg;
   -fx-alignment: CENTER;
-  -fx-effect: dropshadow(gaussian, -color-button-shadow, 3px, -2, 0, 1);
   -fx-padding: 0;
   -fx-alignment: CENTER_LEFT;
 }
@@ -1764,7 +1762,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 }
 .menu-button.button-icon,
 .split-menu-button.button-icon {
-  -fx-padding: 6px;
+  -fx-padding: 8px;
   -fx-content-display: graphic-only;
 }
 .menu-button.button-circle,
@@ -1809,12 +1807,12 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 }
 .menu-button > .label,
 .split-menu-button > .label {
-  -fx-padding: 6px 12px 6px 12px;
+  -fx-padding: 8px 12px 8px 12px;
   -fx-text-fill: -color-button-fg;
 }
 .menu-button > .arrow-button,
 .split-menu-button > .arrow-button {
-  -fx-padding: 6px 12px 6px 0;
+  -fx-padding: 8px 12px 8px 0;
 }
 .menu-button > .arrow-button > .arrow,
 .split-menu-button > .arrow-button > .arrow {
@@ -1901,7 +1899,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 .split-menu-button.button-outlined {
   -color-button-bg: -color-bg-default;
   -color-button-fg: -color-fg-default;
-  -color-button-bg-hover: -color-base-6;
+  -color-button-bg-hover: -color-base-5;
   -color-button-fg-hover: -color-button-fg;
 }
 .menu-button.accent,
@@ -1939,7 +1937,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -color-button-bg-hover: -color-success-emphasis;
   -color-button-fg-hover: -color-fg-emphasis;
   -color-button-border-hover: -color-success-emphasis;
-  -color-button-bg-focused: -color-success-7;
+  -color-button-bg-focused: -color-success-6;
   -color-button-fg-focused: -color-fg-emphasis;
   -color-button-border-focused: -color-success-emphasis;
   -color-button-bg-pressed: -color-success-emphasis;
@@ -2016,14 +2014,14 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 }
 
 .split-menu-button > .label {
-  -fx-padding: 6px 6px 6px 12px;
+  -fx-padding: 8px 6px 8px 12px;
 }
 .split-menu-button:hover > .arrow-button, .split-menu-button:focused:hover > .arrow-button {
   -fx-background-color: -color-accent-emphasis;
   -fx-background-insets: 1px;
   -fx-background-radius: 5px;
   -fx-border-color: transparent;
-  -fx-opacity: 1;
+  -fx-opacity: 0.75;
 }
 .split-menu-button:hover > .arrow-button > .arrow, .split-menu-button:focused:hover > .arrow-button > .arrow {
   -fx-background-color: -color-fg-emphasis;
@@ -2042,7 +2040,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -color-button-fg: -color-fg-emphasis;
 }
 .split-menu-button > .arrow-button {
-  -fx-padding: 6px 12px 6px 12px;
+  -fx-padding: 8px 12px 8px 12px;
   -fx-background-radius: 0 5px 5px 0;
   -fx-border-color: -color-button-fg;
   -fx-border-width: 0 0 0 0.75px;
@@ -2083,8 +2081,8 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -fx-background-color: -color-accent-emphasis, -color-accent-emphasis;
 }
 .radio-button:selected > .radio > .dot {
-  -fx-background-color: -color-accent-emphasis, -color-fg-emphasis;
-  -fx-background-insets: 0, 2px;
+  -fx-background-color: -color-bg-default, -color-accent-emphasis;
+  -fx-background-insets: 0, 3px;
 }
 .radio-button:show-mnemonics > .mnemonic-underline {
   -fx-stroke: -color-fg-muted;
@@ -2093,7 +2091,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 .slider {
   -color-slider-thumb: -color-fg-default;
   -color-slider-thumb-border: -color-fg-default;
-  -color-slider-track: -color-border-muted;
+  -color-slider-track: #52468c;
   -color-slider-track-progress: -color-accent-emphasis;
   -color-slider-tick: -color-fg-muted;
 }
@@ -2103,9 +2101,9 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 }
 .slider > .thumb {
   -fx-background-color: -color-slider-thumb-border, -color-slider-thumb;
-  -fx-background-insets: 0, 0.5px;
+  -fx-background-insets: 0, 2px;
   -fx-background-radius: 50px;
-  -fx-effect: dropshadow(gaussian, -color-border-default, 3px, 0.25, 0, 1);
+  -fx-effect: none;
 }
 .slider > .track {
   -fx-background-color: transparent, -color-slider-track;
@@ -2203,7 +2201,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 .spinner > .text-field {
   -fx-background-radius: 6px 0 0 6px;
   -fx-background-insets: 0;
-  -fx-padding: 5px 11px 5px 11px;
+  -fx-padding: 7px 11px 7px 11px;
 }
 .spinner > .text-field:readonly {
   -fx-background-color: -color-input-border, -color-input-bg;
@@ -2212,32 +2210,32 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -fx-background-color: -color-input-border-focused, -color-input-bg-focused;
 }
 .spinner > .increment-arrow-button {
-  -fx-background-color: -color-accent-emphasis;
+  -fx-background-color: -color-bg-subtle;
   -fx-background-insets: 0;
   -fx-background-radius: 0 6px 0 0;
   -fx-padding: 10px;
 }
 .spinner > .increment-arrow-button:hover {
-  -fx-background-color: -color-accent-3;
+  -fx-background-color: -color-accent-muted;
 }
 .spinner > .increment-arrow-button > .increment-arrow {
-  -fx-background-color: -color-fg-emphasis;
+  -fx-background-color: -color-fg-default;
   -fx-background-insets: 0;
   -fx-padding: 0 0.25em 0 0.25em;
   -fx-shape: "M7 14l5-5 5 5z";
   -fx-scale-shape: false;
 }
 .spinner > .decrement-arrow-button {
-  -fx-background-color: -color-accent-emphasis;
+  -fx-background-color: -color-bg-subtle;
   -fx-background-insets: -1 0 0 0;
   -fx-background-radius: 0 0 6px 0;
   -fx-padding: 10px;
 }
 .spinner > .decrement-arrow-button:hover {
-  -fx-background-color: -color-accent-3;
+  -fx-background-color: -color-accent-muted;
 }
 .spinner > .decrement-arrow-button > .decrement-arrow {
-  -fx-background-color: -color-fg-emphasis;
+  -fx-background-color: -color-fg-default;
   -fx-background-insets: 0;
   -fx-padding: 0 0.25em 0 0.25em;
   -fx-shape: "M7 10l5 5 5-5z";
@@ -2341,7 +2339,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 .split-pane {
   -color-split-divider: -color-border-subtle;
   -color-split-divider-pressed: -color-accent-emphasis;
-  -color-split-grabber: -color-fg-muted;
+  -color-split-grabber: -color-accent-4;
   -color-split-grabber-pressed: -color-accent-emphasis;
   -fx-background-color: transparent;
   -fx-background-insets: 0;
@@ -2354,11 +2352,11 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 }
 .split-pane > .split-pane-divider > .horizontal-grabber {
   -fx-background-color: -color-split-grabber;
-  -fx-padding: 5px 1px 5px 1px;
+  -fx-padding: 15px 1px 15px 1px;
 }
 .split-pane > .split-pane-divider > .vertical-grabber {
   -fx-background-color: -color-split-grabber;
-  -fx-padding: 1px 5px 1px 5px;
+  -fx-padding: 1px 15px 1px 15px;
 }
 .split-pane > .split-pane-divider:pressed {
   -fx-background-color: -color-split-divider-pressed;
@@ -2377,7 +2375,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 .tab-pane {
   -color-tab-bg-selected: -color-bg-default;
   -color-tab-fg-selected: -color-fg-default;
-  -color-tab-border-selected: -color-accent-emphasis;
+  -color-tab-border-selected: -color-warning-emphasis;
 }
 .tab-pane > .tab-header-area {
   -fx-background-insets: 0;
@@ -2485,7 +2483,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -fx-padding: 0.15em 0.3em 0.15em 0.3em;
 }
 .tab-pane.floating {
-  -color-tab-bg-selected: -color-base-6;
+  -color-tab-bg-selected: -color-bg-default;
   -color-tab-fg-selected: -color-fg-default;
   -color-tab-border-selected: -color-border-default;
 }
@@ -2499,7 +2497,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -fx-padding: 0.3em 0 0.3em 3px;
 }
 .tab-pane.floating > .tab-header-area > .headers-region > .tab > .tab-container {
-  -fx-background-color: -color-border-subtle, -color-base-9;
+  -fx-background-color: -color-border-subtle, -color-bg-inset;
   -fx-background-insets: 0, 0 1 0 0;
   -fx-background-radius: 0;
   -fx-border-radius: 6px;
@@ -2570,11 +2568,117 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -fx-padding: 5px 5px 0 0;
 }
 
+.text-input {
+  -color-input-bg: -color-bg-default;
+  -color-input-fg: -color-fg-default;
+  -color-input-border: -color-border-default;
+  -color-input-bg-focused: -color-bg-default;
+  -color-input-border-focused: -color-accent-emphasis;
+  -color-input-bg-readonly: -color-bg-subtle;
+  -color-input-bg-highlight: #44475a;
+  -color-input-fg-highlight: -color-fg-default;
+  -fx-background-color: -color-input-border, -color-input-bg;
+  -fx-background-insets: 0, 1px;
+  -fx-background-radius: 6px, 5px;
+  -fx-text-fill: -color-input-fg;
+  -fx-highlight-fill: -color-input-bg-highlight;
+  -fx-highlight-text-fill: -color-input-fg-highlight;
+  -fx-prompt-text-fill: -color-fg-subtle;
+  -fx-padding: 8px 12px 8px 12px;
+  -fx-cursor: text;
+}
+.text-input:focused {
+  -fx-background-color: -color-input-border-focused, -color-input-bg-focused;
+  -fx-prompt-text-fill: transparent;
+}
+.text-input:disabled {
+  -fx-opacity: 0.4;
+}
+.text-input:disabled > .scroll-pane {
+  -fx-opacity: 1;
+}
+.text-input:success {
+  -color-input-bg: -color-bg-default;
+  -color-input-fg: -color-success-fg;
+  -color-input-border: -color-success-emphasis;
+  -color-input-border-focused: -color-success-emphasis;
+}
+.text-input:danger {
+  -color-input-bg: -color-bg-default;
+  -color-input-fg: -color-danger-fg;
+  -color-input-border: -color-danger-emphasis;
+  -color-input-border-focused: -color-danger-emphasis;
+}
+.text-input:readonly {
+  -fx-background-color: -color-input-border, -color-input-bg-readonly;
+}
+.text-input:readonly:focused {
+  -fx-background-color: -color-input-border-focused, -color-input-bg-readonly;
+}
+.text-input.edge-to-edge {
+  -fx-background-color: -color-input-bg;
+  -fx-background-insets: 0;
+  -fx-background-radius: 0;
+}
+.text-input.left-pill {
+  -fx-background-radius: 6px 0 0 6px, 5px 0 0 5px;
+  -fx-background-insets: 0, 1px 0 1px 1px;
+}
+.text-input.left-pill:focused {
+  -fx-background-insets: 0, 1px;
+}
+.text-input.center-pill {
+  -fx-background-radius: 0;
+  -fx-background-insets: 0, 1px 0 1px 0;
+}
+.text-input.center-pill:focused {
+  -fx-background-insets: 0, 1px;
+}
+.text-input.right-pill {
+  -fx-background-radius: 0 6px 6px 0, 0 5px 5px 0;
+  -fx-background-insets: 0, 1px 1px 1px 0;
+}
+.text-input.right-pill:focused {
+  -fx-background-insets: 0, 1px;
+}
+.text-input .context-menu {
+  -fx-font-size: 14px;
+  -fx-font-weight: normal;
+}
+.text-input .context-menu .menu-item {
+  -fx-cursor: default;
+}
+
+.text-field.small {
+  -fx-padding: 5.7142857143px 8.5714285714px 5.7142857143px 8.5714285714px;
+  -fx-font-size: 0.8em;
+}
+.text-field.large {
+  -fx-padding: 11.2px 16.8px 11.2px 16.8px;
+  -fx-font-size: 1.25em;
+}
+.text-field.rounded {
+  -fx-background-radius: 10em;
+}
+
+.text-area {
+  -fx-padding: 2px;
+  -fx-cursor: default;
+}
+.text-area .content {
+  -fx-cursor: text;
+  -fx-padding: 8px 12px 8px 12px;
+}
+
+.password-field {
+  -fx-text-fill: -color-fg-muted;
+}
+
 .toggle-button {
-  -color-button-bg: rgb(28, 28, 30);
+  -color-button-bg: -color-bg-subtle;
   -color-button-fg: -color-fg-default;
   -color-button-border: -color-border-default;
-  -color-button-bg-hover: -color-base-6;
+  -color-button-bg-hover: -color-base-5;
   -color-button-fg-hover: -color-button-fg;
   -color-button-border-hover: -color-button-border;
   -color-button-bg-focused: -color-button-bg;
@@ -2590,10 +2694,9 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -fx-graphic-text-gap: 6px;
   -fx-text-fill: -color-button-fg;
   -fx-alignment: CENTER;
-  -fx-effect: dropshadow(gaussian, -color-button-shadow, 3px, -2, 0, 1);
   -color-button-bg-selected: -color-accent-emphasis;
   -color-button-fg-selected: -color-fg-emphasis;
-  -fx-padding: 6px 12px 6px 12px;
+  -fx-padding: 8px 12px 8px 12px;
 }
 .toggle-button .font-icon, .toggle-button .ikonli-font-icon {
   -fx-icon-color: -color-button-fg;
@@ -2607,7 +2710,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -fx-stroke: -color-button-fg;
 }
 .toggle-button.button-icon {
-  -fx-padding: 6px;
+  -fx-padding: 8px;
   -fx-content-display: graphic-only;
 }
 .toggle-button.button-circle {
@@ -2641,7 +2744,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -fx-background-insets: 0, 1px;
 }
 .toggle-button:selected, .toggle-button:selected:focused {
-  -fx-background-color: #0970d9, -color-button-bg-selected;
+  -fx-background-color: #7f6dd9, -color-button-bg-selected;
   -fx-text-fill: -color-button-fg-selected;
   -fx-background-insets: 0;
 }
@@ -2652,9 +2755,6 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 .toggle-button:show-mnemonics:selected > .mnemonic-underline {
   -fx-stroke: -color-button-fg-selected;
 }
-.toggle-button.left-pill, .toggle-button.center-pill, .toggle-button.right-pill {
-  -fx-effect: dropshadow(gaussian, -color-button-shadow, 3px, -2, 0, 1);
-}
 .toggle-button:selected.left-pill:focused {
   -fx-background-insets: 0, 1px;
 }
@@ -2663,6 +2763,144 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 }
 .toggle-button:selected.right-pill:focused {
   -fx-background-insets: 0, 1px;
+}
+
+.toggle-switch {
+  -fx-thumb-move-animation-time: 200;
+}
+.toggle-switch > .label-container > .label {
+  -fx-font-size: 1em;
+  -fx-text-fill: -color-fg-default;
+  -fx-padding: 2px 6px 2px 0;
+}
+.toggle-switch > .thumb {
+  -fx-background-color: transparent, -color-fg-default;
+  -fx-background-insets: 0, 4px;
+  -fx-background-radius: 10em;
+  -fx-padding: 0.75em;
+  -fx-alignment: CENTER;
+  -fx-content-display: LEFT;
+  -fx-opacity: 1;
+}
+.toggle-switch > .thumb-area {
+  -fx-background-radius: 1em;
+  -fx-background-color: -color-accent-emphasis, -color-bg-default;
+  -fx-background-insets: 0, 2px;
+  -fx-padding: 0.85em 1.4em 0.85em 1.4em;
+}
+.toggle-switch:selected > .thumb {
+  -fx-background-color: transparent, -color-accent-emphasis;
+  -fx-opacity: 1;
+}
+.toggle-switch:selected > .thumb-area {
+  -fx-background-color: -color-accent-emphasis, -color-bg-default;
+}
+.toggle-switch:selected:success > .thumb {
+  -fx-background-color: -color-success-emphasis, -color-accent-emphasis;
+}
+.toggle-switch:selected:success > .thumb-area {
+  -fx-background-color: -color-success-emphasis, -color-success-emphasis;
+}
+.toggle-switch:selected:danger > .thumb {
+  -fx-background-color: -color-danger-emphasis, -color-accent-emphasis;
+}
+.toggle-switch:selected:danger > .thumb-area {
+  -fx-background-color: -color-danger-emphasis, -color-danger-emphasis;
+}
+.toggle-switch:right > .label-container > .label {
+  -fx-padding: 2px 0 2px 6px;
+}
+.toggle-switch:disabled {
+  -fx-opacity: 0.4;
+}
+
+.tool-bar {
+  -fx-background-color: -color-border-muted, -color-bg-subtle;
+  -fx-background-insets: 0, 0 0 1px 0;
+  -fx-padding: 4px 0.3em 4px 0.3em;
+  -fx-spacing: 4px;
+  -fx-alignment: CENTER_LEFT;
+}
+.tool-bar > .container > .button,
+.tool-bar > .container > .menu-button,
+.tool-bar > .container > .split-menu-button {
+  -color-button-bg: -color-bg-subtle;
+  -color-button-bg-hover: -color-base-5;
+  -color-button-border-hover: -color-accent-muted;
+  -color-button-border-focused: -color-accent-muted;
+  -fx-background-insets: 0;
+  -fx-effect: none;
+}
+.tool-bar > .container > .button:hover,
+.tool-bar > .container > .menu-button:hover,
+.tool-bar > .container > .split-menu-button:hover {
+  -fx-background-insets: 0, 1px;
+}
+.tool-bar > .container > .button.button-icon,
+.tool-bar > .container > .menu-button.button-icon,
+.tool-bar > .container > .split-menu-button.button-icon {
+  -fx-padding: 8px 12px 8px 12px;
+}
+.tool-bar > .container .toggle-button {
+  -color-button-bg: -color-bg-subtle;
+  -color-button-border-hover: -color-accent-muted;
+  -color-button-bg-selected: -color-base-4;
+  -color-button-fg-selected: -color-fg-default;
+  -fx-background-insets: 0;
+  -fx-effect: none;
+}
+.tool-bar > .container .toggle-button:hover {
+  -fx-background-insets: 0, 1px;
+  -fx-background-color: -color-button-border-hover, -color-bg-subtle;
+}
+.tool-bar > .container .toggle-button:hover:selected {
+  -fx-background-color: -color-button-border-hover, -color-base-4;
+}
+.tool-bar > .container .breadcrumbs {
+  -fx-background-color: -color-border-default, -color-bg-default;
+  -fx-background-insets: 0, 1px;
+  -fx-background-radius: 6px, 5px;
+  -fx-padding: 6px 1em 6px 1em;
+}
+.tool-bar > .container .breadcrumbs > .hyperlink {
+  -color-link-fg: -color-fg-default;
+  -color-link-fg-visited: -color-fg-default;
+  -color-link-fg-armed: -color-fg-default;
+  -fx-padding: 2px 0.5em 2px 0.5em;
+  -fx-underline: false;
+  -fx-cursor: default;
+}
+.tool-bar > .container .breadcrumbs > .hyperlink:hover {
+  -fx-background-color: -color-base-5;
+  -fx-background-radius: 6px, 5px;
+}
+.tool-bar > .tool-bar-overflow-button {
+  -fx-padding: 0 0.3em 0 4px;
+}
+.tool-bar > .tool-bar-overflow-button > .arrow {
+  -fx-shape: "M5.06 5 4 6.06 7.94 10 4 13.94 5.06 15l5-5z M11 5 9.94 6.06 13.88 10l-3.94 3.94L11 15l5-5z";
+  -fx-scale-shape: false;
+  -fx-background-color: -color-fg-default;
+}
+.tool-bar > .tool-bar-overflow-button .menu-item:hover {
+  -fx-background-color: transparent;
+}
+.tool-bar:vertical {
+  -fx-background-insets: 0, 0 1px 0 0;
+  -fx-padding: 0.3em 4px 0.3em 4px;
+  -fx-alignment: TOP_LEFT;
+}
+.tool-bar:vertical > .container > .separator {
+  -fx-orientation: horizontal;
+}
+.tool-bar:vertical > .tool-bar-overflow-button {
+  -fx-padding: 4px 0 0.3em 0;
+}
+.tool-bar:vertical.right {
+  -fx-background-insets: 0, 0 0 0 1px;
+}
+.tool-bar.bottom {
+  -fx-background-insets: 0, 1px 0 0 0;
 }
 
 .accordion > .titled-pane.first-titled-pane > .title {
@@ -2682,7 +2920,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 }
 */
 .breadcrumbs {
-  -fx-padding: 6px 12px 6px 12px;
+  -fx-padding: 8px 12px 8px 12px;
 }
 .breadcrumbs > .hyperlink {
   -color-link-fg-visited: -color-link-fg;
@@ -3222,7 +3460,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 }
 
 .color-picker > .color-picker-label {
-  -fx-padding: 6px 12px 6px 12px;
+  -fx-padding: 8px 12px 8px 12px;
 }
 .color-picker > .color-picker-label > .label {
   -fx-text-fill: -color-fg-default;
@@ -3383,19 +3621,19 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 }
 
 .custom-text-field:left-node-visible {
-  -fx-padding: 6px 12px 6px 0;
+  -fx-padding: 8px 12px 8px 0;
 }
 .custom-text-field:left-node-visible .left-pane {
   -fx-padding: 0 4px 0 6px;
 }
 .custom-text-field:right-node-visible {
-  -fx-padding: 6px 0 6px 12px;
+  -fx-padding: 8px 0 8px 12px;
 }
 .custom-text-field:right-node-visible .right-pane {
   -fx-padding: 0 6px 0 4px;
 }
 .custom-text-field:left-node-visible:right-node-visible {
-  -fx-padding: 6px 0 6px 0;
+  -fx-padding: 8px 0 8px 0;
 }
 .custom-text-field:success .font-icon, .custom-text-field:success .ikonli-font-icon {
   -fx-icon-color: -color-success-fg;
@@ -3644,7 +3882,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -fx-stroke: -color-fg-default;
 }
 .label.left-pill, .label.center-pill, .label.right-pill {
-  -fx-padding: 6px 12px 6px 12px;
+  -fx-padding: 8px 12px 8px 12px;
   -fx-background-color: -color-border-default, -color-bg-subtle;
   -fx-background-insets: 0, 1px;
 }
@@ -4224,7 +4462,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -fx-opacity: 0.5;
 }
 .scroll-bar > .thumb {
-  -fx-background-color: -color-fg-muted;
+  -fx-background-color: -color-accent-4;
   -fx-background-radius: 6px;
 }
 .scroll-bar > .track {
@@ -4308,112 +4546,6 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
 }
 .separator.large:vertical {
   -fx-padding: 0 1.5em 0 1.5em;
-}
-
-.text-input {
-  -color-input-bg: -color-bg-default;
-  -color-input-fg: -color-fg-default;
-  -color-input-border: -color-border-default;
-  -color-input-bg-focused: -color-bg-default;
-  -color-input-border-focused: -color-accent-emphasis;
-  -color-input-bg-readonly: -color-bg-subtle;
-  -color-input-bg-highlight: -color-accent-subtle;
-  -color-input-fg-highlight: -color-fg-default;
-  -fx-background-color: -color-input-border, -color-input-bg;
-  -fx-background-insets: 0, 1px;
-  -fx-background-radius: 6px, 5px;
-  -fx-text-fill: -color-input-fg;
-  -fx-highlight-fill: -color-input-bg-highlight;
-  -fx-highlight-text-fill: -color-input-fg-highlight;
-  -fx-prompt-text-fill: -color-fg-subtle;
-  -fx-padding: 6px 12px 6px 12px;
-  -fx-cursor: text;
-}
-.text-input:focused {
-  -fx-background-color: -color-input-border-focused, -color-input-bg-focused;
-  -fx-prompt-text-fill: transparent;
-}
-.text-input:disabled {
-  -fx-opacity: 0.4;
-}
-.text-input:disabled > .scroll-pane {
-  -fx-opacity: 1;
-}
-.text-input:success {
-  -color-input-bg: -color-bg-default;
-  -color-input-fg: -color-success-fg;
-  -color-input-border: -color-success-emphasis;
-  -color-input-border-focused: -color-success-emphasis;
-}
-.text-input:danger {
-  -color-input-bg: -color-bg-default;
-  -color-input-fg: -color-danger-fg;
-  -color-input-border: -color-danger-emphasis;
-  -color-input-border-focused: -color-danger-emphasis;
-}
-.text-input:readonly {
-  -fx-background-color: -color-input-border, -color-input-bg-readonly;
-}
-.text-input:readonly:focused {
-  -fx-background-color: -color-input-border-focused, -color-input-bg-readonly;
-}
-.text-input.edge-to-edge {
-  -fx-background-color: -color-input-bg;
-  -fx-background-insets: 0;
-  -fx-background-radius: 0;
-}
-.text-input.left-pill {
-  -fx-background-radius: 6px 0 0 6px, 5px 0 0 5px;
-  -fx-background-insets: 0, 1px 0 1px 1px;
-}
-.text-input.left-pill:focused {
-  -fx-background-insets: 0, 1px;
-}
-.text-input.center-pill {
-  -fx-background-radius: 0;
-  -fx-background-insets: 0, 1px 0 1px 0;
-}
-.text-input.center-pill:focused {
-  -fx-background-insets: 0, 1px;
-}
-.text-input.right-pill {
-  -fx-background-radius: 0 6px 6px 0, 0 5px 5px 0;
-  -fx-background-insets: 0, 1px 1px 1px 0;
-}
-.text-input.right-pill:focused {
-  -fx-background-insets: 0, 1px;
-}
-.text-input .context-menu {
-  -fx-font-size: 14px;
-  -fx-font-weight: normal;
-}
-.text-input .context-menu .menu-item {
-  -fx-cursor: default;
-}
-
-.text-field.small {
-  -fx-padding: 4.2857142857px 8.5714285714px 4.2857142857px 8.5714285714px;
-  -fx-font-size: 0.8em;
-}
-.text-field.large {
-  -fx-padding: 8.4px 16.8px 8.4px 16.8px;
-  -fx-font-size: 1.25em;
-}
-.text-field.rounded {
-  -fx-background-radius: 10em;
-}
-
-.text-area {
-  -fx-padding: 2px;
-  -fx-cursor: default;
-}
-.text-area .content {
-  -fx-cursor: text;
-  -fx-padding: 6px 12px 6px 12px;
-}
-
-.password-field {
-  -fx-text-fill: -color-fg-muted;
 }
 
 .tile-base > .container {
@@ -4528,144 +4660,6 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -fx-scale-shape: false;
 }
 
-.toggle-switch {
-  -fx-thumb-move-animation-time: 200;
-}
-.toggle-switch > .label-container > .label {
-  -fx-font-size: 1em;
-  -fx-text-fill: -color-fg-default;
-  -fx-padding: 2px 6px 2px 0;
-}
-.toggle-switch > .thumb {
-  -fx-background-color: -color-border-default, -color-fg-emphasis;
-  -fx-background-insets: 0, 2px;
-  -fx-background-radius: 10em;
-  -fx-padding: 0.85em;
-  -fx-alignment: CENTER;
-  -fx-content-display: LEFT;
-  -fx-opacity: 0.8;
-}
-.toggle-switch > .thumb-area {
-  -fx-background-radius: 1em;
-  -fx-background-color: -color-border-default, -color-bg-subtle;
-  -fx-background-insets: 0, 1px;
-  -fx-padding: 0.85em 1.4em 0.85em 1.4em;
-}
-.toggle-switch:selected > .thumb {
-  -fx-background-color: -color-accent-emphasis, -color-fg-emphasis;
-  -fx-opacity: 1;
-}
-.toggle-switch:selected > .thumb-area {
-  -fx-background-color: -color-accent-emphasis, -color-accent-emphasis;
-}
-.toggle-switch:selected:success > .thumb {
-  -fx-background-color: -color-success-emphasis, -color-fg-emphasis;
-}
-.toggle-switch:selected:success > .thumb-area {
-  -fx-background-color: -color-success-emphasis, -color-success-emphasis;
-}
-.toggle-switch:selected:danger > .thumb {
-  -fx-background-color: -color-danger-emphasis, -color-fg-emphasis;
-}
-.toggle-switch:selected:danger > .thumb-area {
-  -fx-background-color: -color-danger-emphasis, -color-danger-emphasis;
-}
-.toggle-switch:right > .label-container > .label {
-  -fx-padding: 2px 0 2px 6px;
-}
-.toggle-switch:disabled {
-  -fx-opacity: 0.4;
-}
-
-.tool-bar {
-  -fx-background-color: -color-border-muted, -color-bg-subtle;
-  -fx-background-insets: 0, 0 0 1px 0;
-  -fx-padding: 4px 0.3em 4px 0.3em;
-  -fx-spacing: 4px;
-  -fx-alignment: CENTER_LEFT;
-}
-.tool-bar > .container > .button,
-.tool-bar > .container > .menu-button,
-.tool-bar > .container > .split-menu-button {
-  -color-button-bg: -color-bg-subtle;
-  -color-button-bg-hover: -color-base-6;
-  -color-button-border-hover: -color-accent-muted;
-  -color-button-border-focused: -color-accent-muted;
-  -fx-background-insets: 0;
-  -fx-effect: none;
-}
-.tool-bar > .container > .button:hover,
-.tool-bar > .container > .menu-button:hover,
-.tool-bar > .container > .split-menu-button:hover {
-  -fx-background-insets: 0, 1px;
-}
-.tool-bar > .container > .button.button-icon,
-.tool-bar > .container > .menu-button.button-icon,
-.tool-bar > .container > .split-menu-button.button-icon {
-  -fx-padding: 6px 12px 6px 12px;
-}
-.tool-bar > .container .toggle-button {
-  -color-button-bg: -color-bg-subtle;
-  -color-button-border-hover: -color-accent-muted;
-  -color-button-bg-selected: -color-base-6;
-  -color-button-fg-selected: -color-fg-default;
-  -fx-background-insets: 0;
-  -fx-effect: none;
-}
-.tool-bar > .container .toggle-button:hover {
-  -fx-background-insets: 0, 1px;
-  -fx-background-color: -color-button-border-hover, -color-bg-subtle;
-}
-.tool-bar > .container .toggle-button:hover:selected {
-  -fx-background-color: -color-button-border-hover, -color-base-6;
-}
-.tool-bar > .container .breadcrumbs {
-  -fx-background-color: -color-border-default, -color-bg-default;
-  -fx-background-insets: 0, 1px;
-  -fx-background-radius: 6px, 5px;
-  -fx-padding: 4px 1em 4px 1em;
-}
-.tool-bar > .container .breadcrumbs > .hyperlink {
-  -color-link-fg: -color-fg-default;
-  -color-link-fg-visited: -color-fg-default;
-  -color-link-fg-armed: -color-fg-default;
-  -fx-padding: 2px 0.5em 2px 0.5em;
-  -fx-underline: false;
-  -fx-cursor: default;
-}
-.tool-bar > .container .breadcrumbs > .hyperlink:hover {
-  -fx-background-color: -color-base-6;
-  -fx-background-radius: 6px, 5px;
-}
-.tool-bar > .tool-bar-overflow-button {
-  -fx-padding: 0 0.3em 0 4px;
-}
-.tool-bar > .tool-bar-overflow-button > .arrow {
-  -fx-shape: "M5.06 5 4 6.06 7.94 10 4 13.94 5.06 15l5-5z M11 5 9.94 6.06 13.88 10l-3.94 3.94L11 15l5-5z";
-  -fx-scale-shape: false;
-  -fx-background-color: -color-fg-default;
-}
-.tool-bar > .tool-bar-overflow-button .menu-item:hover {
-  -fx-background-color: transparent;
-}
-.tool-bar:vertical {
-  -fx-background-insets: 0, 0 1px 0 0;
-  -fx-padding: 0.3em 4px 0.3em 4px;
-  -fx-alignment: TOP_LEFT;
-}
-.tool-bar:vertical > .container > .separator {
-  -fx-orientation: horizontal;
-}
-.tool-bar:vertical > .tool-bar-overflow-button {
-  -fx-padding: 4px 0 0.3em 0;
-}
-.tool-bar:vertical.right {
-  -fx-background-insets: 0, 0 0 0 1px;
-}
-.tool-bar.bottom {
-  -fx-background-insets: 0, 1px 0 0 0;
-}
-
 .tooltip {
   -fx-background-color: -color-border-default, -color-bg-overlay;
   -fx-background-insets: 0, 1px;
@@ -4673,7 +4667,7 @@ Add support for NO_HEADER tweak in tables .table-view.no-header > .column-header
   -fx-text-fill: -color-fg-default;
   -fx-font-size: 14px;
   -fx-font-weight: normal;
-  -fx-padding: 6px 12px 6px 12px;
+  -fx-padding: 8px 12px 8px 12px;
   -fx-opacity: 0.85;
   -fx-effect: dropshadow(three-pass-box, -color-shadow-default, 8px, 0.6, 0, 2);
 }

@@ -1,4 +1,9 @@
+.text-field {
+  -fx-font-family: "JetBrains Mono Bold";
+}
+
 .root {
+  -fx-font-family: "Inter Medium";
   -color-dark: rgb(0, 0, 0);
   -color-light: rgb(255, 255, 255);
   -color-base-0: rgb(242, 242, 247);

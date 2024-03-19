@@ -14,7 +14,7 @@ class BodyPanel(val body: Body) extends GridPane:
 
   val title = new Label:
     text = "Selected Body"
-    font = Font(32)
+    font = Settings.fontTitle
 
   val nameField = new TextField:
     text = body.name
@@ -48,7 +48,7 @@ class BodyPanel(val body: Body) extends GridPane:
   labelColumn.minWidth = 120
 
   val inputColumn = new ColumnConstraints()
-  inputColumn.minWidth = 100
+  inputColumn.minWidth = 150
 
   columnConstraints.addAll(labelColumn, inputColumn)
 

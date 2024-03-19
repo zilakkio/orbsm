@@ -2,7 +2,7 @@ import tools.Centering.{AtBody, MassCenter}
 import tools.Tool.*
 import engine.{Body, GravitationalForce, Vector3D}
 import gui.AlertManager.stage
-import gui.{AlertManager, BodyPanel, SimPanel, BodyDialog}
+import gui.{AlertManager, BodyDialog, BodyPanel, SimPanel}
 import scalafx.animation.AnimationTimer
 import scalafx.application.{JFXApp3, Platform}
 import scalafx.geometry.{Insets, Pos}
@@ -12,12 +12,13 @@ import scalafx.scene.layout.*
 import scalafx.scene.paint.Color.*
 import scalafx.scene.control.*
 import scalafx.scene.paint.Color
+import scalafx.scene.text.Font
 import scalafx.stage.{FileChooser, StageStyle}
 import scalafx.stage.FileChooser.ExtensionFilter
 import tools.{Centering, Simulation, Tool}
 import tools.*
-import java.util.NoSuchElementException
 
+import java.util.NoSuchElementException
 import scala.collection.mutable.Buffer
 
 
@@ -237,16 +238,16 @@ object GUI extends JFXApp3:
           items = List(itemNew, itemSave, itemSaveAs, itemOpen)
 
         val menuSim = new Menu("Simulation"):
-          val itemStart = new MenuItem("Start/Stop \t\t Ctrl+SPACE"):
+          val itemStart = new MenuItem("Start/Stop \t\t\t Ctrl+SPACE"):
             onAction = (event) =>
               sim.stopped = !sim.stopped
           val itemSpeedUp = new MenuItem("Speed x2 \t\t\t Ctrl+RIGHT"):
             onAction = (event) =>
               sim.speed *= 2
-          val itemSlowDown = new MenuItem("Speed x0.5 \t\t Ctrl+LEFT"):
+          val itemSlowDown = new MenuItem("Speed x0.5 \t\t\t Ctrl+LEFT"):
             onAction = (event) =>
               sim.speed /= 2
-          val itemTickUp = new MenuItem("Tickrate x2 \t\t Ctrl+UP"):
+          val itemTickUp = new MenuItem("Tickrate x2 \t\t\t Ctrl+UP"):
             onAction = (event) =>
               sim.setTPF(sim.tpf * 2)
           val itemTickDown = new MenuItem("Tickrate x0.5 \t\t Ctrl+DOWN"):
@@ -334,9 +335,11 @@ object GUI extends JFXApp3:
     def toggleLightMode() =
       lightMode = !lightMode
       if lightMode then
-        scene.setUserAgentStylesheet("styles/cupertino-light.css")
+        scene.setUserAgentStylesheet("styles/primer-light.css")
+        Settings.theme = "/styles/primer-light.css"
       else
-        scene.setUserAgentStylesheet("styles/cupertino-dark.css")
+        scene.setUserAgentStylesheet("styles/dracula.css")
+        Settings.theme = "/styles/dracula.css"
 
     // set dark mode by default
     toggleLightMode()
@@ -478,7 +481,7 @@ object GUI extends JFXApp3:
         for i <- 1 to 255 do
           if body.positionHistory.length > i then
             val posNew: Vector3D = positionToPixel(sim.canvas, body.positionHistory(i))
-            simGC.stroke = body.color.interpolate(Black, 1 - i.toDouble / math.min(body.positionHistory.length, 255.0))
+            simGC.stroke = body.color.interpolate(if !lightMode then Black else LightGrey, 1 - i.toDouble / math.min(body.positionHistory.length, 255.0))
 
             simGC.beginPath()
             simGC.moveTo(pos.x, pos.y)
@@ -565,6 +568,7 @@ object GUI extends JFXApp3:
       simGC.fill = if lightMode then Black else White
       sim.recordFPS(1.0 / simDT)
       val avg = sim.getAverageFPS
+      simGC.font = Settings.fontMono
       simGC.fillText(
         f"${(avg).round.toString} FPS | ${(1000 / avg)}%.2f ms | ${sim.speed}%.2f days/s | ${(sim.speed / avg * 24)}%.2f h/frame \n" +
         { if !sim.stopped then f"${((avg).round * sim.tpf).toString} TPS | ${(1000 / avg / sim.tpf)}%.2f ms | ${(sim.speed / avg * 24 * 60 / sim.tpf)}%.2f min/tick \n" else "0 TPS\n" } +
@@ -580,17 +584,23 @@ object GUI extends JFXApp3:
          f" | ${sim.zoom}%.2fx zoom" + { if sim.selectedBody.isDefined then s"${sim.selectedBody.get}" else "" },
         20, 20
       )
+      simGC.font = Settings.fontMain
 
       // alerts
       Platform.runLater {
         val alert = AlertManager.get()
         alert match
-          case Some(a) => a.showAndWait()
+          case Some(a) =>
+            val stop = sim.stopped
+            sim.pause()
+            a.showAndWait()
+            if !stop then sim.play()
           case None => ()
       }
      }
-     catch
-       case e => AlertManager.alert(e.toString)
+      catch
+        case e: NotImplementedError => AlertManager.alert("This feature is not implemented yet")
+        case e => AlertManager.alert(e.toString)
     }
 
     timer.start()
