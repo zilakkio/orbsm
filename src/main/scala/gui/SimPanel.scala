@@ -12,7 +12,7 @@ import tools.CollisionMode.{Disabled, Elastic, Inelastic, Merge}
 import tools.Integrator.{ExplicitEuler, RK2, RK4, Random, SemiImplicitEuler, Verlet}
 
 class SimPanel(val sim: Simulation) extends GridPane:
-
+  
     padding = Insets(20, 20, 10, 10)
 
     val title = new Label:
@@ -84,7 +84,6 @@ class SimPanel(val sim: Simulation) extends GridPane:
 
     this.hgap = 10
     this.vgap = 10
-
 
     val labelColumn = new ColumnConstraints()
     labelColumn.minWidth = 120

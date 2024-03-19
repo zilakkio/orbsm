@@ -29,6 +29,8 @@ case class Vector3D(val x: Double, val y: Double, val z: Double = 0):
 
   def round = Vector3D(x.round, y.round, z.round)
 
+  def noz = Vector3D(x, y, 0.0)
+
   override def toString: String = f"[$x $y $z]"
 
 extension (scalar: Double)

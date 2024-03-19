@@ -29,7 +29,7 @@ class Simulation:
   var showTrails: Boolean = true
 
   var workingFile: String = ""  
-  val fpsRecords: Buffer[Double] = Buffer()
+  var fpsRecords: Buffer[(Long, Double)] = Buffer()
 
   // GUI-related
   var selectedBody: Option[Body] = None
@@ -57,7 +57,7 @@ class Simulation:
   def getAverageFPS =
     var sum = 0.0
     fpsRecords.foreach(record =>
-      sum += record
+      sum += record._2
     )
     sum / fpsRecords.length
 
@@ -66,8 +66,9 @@ class Simulation:
     if tpf < 1 then tpf = 1
 
   def recordFPS(record: Double) =
-    fpsRecords += record
-    if fpsRecords.length > 255 then fpsRecords.remove(0)
+    val now = System.currentTimeMillis()
+    fpsRecords += now -> record
+    fpsRecords = fpsRecords.filter(_._1 >= now - 1000)
 
   def centeringPosition: Vector3D =
     centering match
@@ -106,7 +107,7 @@ class Simulation:
     if !stopped then
       for i <- 1 to tpf.toInt do
         space.tick(deltaTime * speed * 86400 * (1.0 / tpf.toInt.toDouble), integrator, collisionMode)
-    if showTrails then space.bodies.foreach(_.updateTrail(deltaTime))
+    space.bodies.foreach(_.updateTrail(deltaTime))
 
   def pause() =
     stopped = true

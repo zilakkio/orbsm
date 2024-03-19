@@ -5,32 +5,40 @@ import gui.AlertManager.stage
 import gui.{AlertManager, BodyDialog, BodyPanel, SimPanel}
 import scalafx.animation.AnimationTimer
 import scalafx.application.{JFXApp3, Platform}
+import scalafx.collections.ObservableBuffer
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
 import scalafx.scene.canvas.Canvas
 import scalafx.scene.layout.*
 import scalafx.scene.paint.Color.*
 import scalafx.scene.control.*
+import scalafx.scene.control.ScrollPane.ScrollBarPolicy
 import scalafx.scene.paint.Color
 import scalafx.scene.text.Font
-import scalafx.stage.{FileChooser, StageStyle}
+import scalafx.stage.{FileChooser, Stage, StageStyle}
 import scalafx.stage.FileChooser.ExtensionFilter
 import tools.{Centering, Simulation, Tool}
 import tools.*
+import tools.MultiSelectMode.{Closest2D, Closest3D, Heaviest, Largest}
 
-import java.util.NoSuchElementException
 import scala.collection.mutable.Buffer
+import scala.language.postfixOps
 
 
 object GUI extends JFXApp3:
 
   def start() =
+
     var sim = Simulation()
     val tabSimulations: Buffer[Simulation] = Buffer()
-    
+
+    var bodyPanel: Option[BodyPanel] = None
+
     var cursorPixelPosition: Vector3D = Vector3D(0.0, 0.0)
     var cursorDragEnterPixelPosition: Option[Vector3D] = None
     var lightMode = true
+
+    var multiSelectMode: MultiSelectMode = Heaviest
 
     def pixelToPosition(canvas: Canvas, pixelX: Double, pixelY: Double): Vector3D =
         (Vector3D(pixelX - canvas.width.value / 2, pixelY - canvas.height.value / 2) + sim.pixelOffset) * sim.metersPerPixel
@@ -71,9 +79,14 @@ object GUI extends JFXApp3:
     val root = new BorderPane()
 
     val sidePanel = new VBox:
-      prefWidth = 300
-      margin = Insets(10, 0, 0, 10)
-      spacing = 10
+      prefWidth = 310
+      margin = Insets(20, 20, 20, 20)
+      spacing = 0
+
+    val sideScrollable = new ScrollPane:
+      padding = Insets(20, 20, 20, 20)
+      content = sidePanel
+      hbarPolicy = ScrollBarPolicy.Never
 
     val bodyPanelContainer = new VBox()
     val simPanelContainer = new VBox()
@@ -109,7 +122,8 @@ object GUI extends JFXApp3:
 
     def selectBody(body: Body) =
       sim.select(body)
-      bodyPanelContainer.children = BodyPanel(body)
+      bodyPanel = Some(BodyPanel(body))
+      bodyPanelContainer.children = bodyPanel
 
     def initCanvas(): Canvas =
       var canvas1 = new Canvas():
@@ -158,9 +172,6 @@ object GUI extends JFXApp3:
                   sim.play()
                 case None => ()
 
-
-
-
         onMouseMoved = (event) =>
           cursorPixelPosition = Vector3D(event.getX, event.getY)
 
@@ -202,6 +213,7 @@ object GUI extends JFXApp3:
 
     def deselectBody() =
       sim.deselect()
+      bodyPanel = None
       bodyPanelContainer.children.clear()
 
     def save() =
@@ -300,20 +312,27 @@ object GUI extends JFXApp3:
       toggleGroup = toolSelector
       onAction = (event) => sim.tool = Tool.AutoOrbit
 
-    val toolBox = new HBox:
-      spacing = 10
-      children = Array(
-        freeBodySelector,
-        autoOrbitSelector,
-        nothingSelector
-      )
+    val toolBar = new ToolBar():
+      padding = Insets(10, 10, 10, 10)
+
+    val toolBox = new GridPane():
+      padding = Insets(20, 20, 10, 10)
+      hgap = 10
+      vgap = 10
+
+    val toolboxTitle = new Label:
+      text = "Tools"
+      font = Settings.fontTitle
+
+    toolBar.items = ObservableBuffer(freeBodySelector, autoOrbitSelector, nothingSelector)
 
     sidePanel.children = Array(toolBox, bodyPanelContainer, simPanelContainer)
 
     // add child components
     root.top = menuBar
-    root.right = sidePanel
+    root.right = sideScrollable
     root.center = spaceView
+    root.bottom = toolBar
 
     // set up alerts
     AlertManager.stage = Some(stage)
@@ -338,8 +357,8 @@ object GUI extends JFXApp3:
         scene.setUserAgentStylesheet("styles/cupertino-light.css")
         Settings.theme = "/styles/cupertino-light.css"
       else
-        scene.setUserAgentStylesheet("styles/dracula.css")
-        Settings.theme = "/styles/dracula.css"
+        scene.setUserAgentStylesheet("styles/cupertino-dark.css")
+        Settings.theme = "/styles/cupertino-dark.css"
 
     // set dark mode by default
     toggleLightMode()
@@ -427,16 +446,7 @@ object GUI extends JFXApp3:
         simDT * 86400 * (if sim.stopped then 0 else 1)) / sim.metersPerPixel
       sim.pixelOffset /= (oldZoom / sim.zoom)                                      // fixed: zoom display bug
       sim.pixelOffset += correction                                                // fixed: moving camera offset bug
-      val positionChange =
       sim.pixelOffset += (sim.targetPixelOffset - sim.pixelOffset) * 0.05          // camera position animation
-
-      // val oldZoom = sim.zoom
-      // val correction = ((sim.cameraVelocity ) * simDT
-      //   * sim.speed * 86400 * (if sim.stopped then 0 else 1)) / sim.metersPerPixel               // new correction with acceleration
-      // sim.zoom += 0.05 * (sim.targetZoom - sim.zoom)             // zoom change animation
-      // sim.pixelOffset /= (oldZoom / sim.zoom)                        // zoom display bug fixed
-      // sim.pixelOffset += correction                                  // moving camera offset bug (attempt to fix)
-      // sim.pixelOffset += (sim.targetPixelOffset - sim.pixelOffset) * 0.05    // camera position animation
           
       // draw the tool-specific visuals
       simGC.stroke = Gray
@@ -475,43 +485,64 @@ object GUI extends JFXApp3:
         val speedPixel = body.velocity.norm / sim.metersPerPixel
         body.setOrbitPrecision((orbitLengthPixel / (speedPixel) / (sim.speed * 86400)) * sim.tpf / 256)
 
-        val drawRadius = bodyDrawRadius(body)
-        simGC.lineWidth = 1
-        var pos = positionToPixel(sim.canvas, body.positionHistory.head)
-        for i <- 1 to 255 do
-          if body.positionHistory.length > i then
-            val posNew: Vector3D = positionToPixel(sim.canvas, body.positionHistory(i))
-            simGC.stroke = body.color.interpolate(if !lightMode then Black else LightGrey, 1 - i.toDouble / math.min(body.positionHistory.length, 255.0))
+        if sim.showTrails then
+          val drawRadius = bodyDrawRadius(body)
+          simGC.lineWidth = 1
+          var pos = positionToPixel(sim.canvas, body.positionHistory.head)
+          for i <- 1 to 255 do
+            if body.positionHistory.length > i then
+              val posNew: Vector3D = positionToPixel(sim.canvas, body.positionHistory(i))
+              simGC.stroke = body.color.interpolate(if !lightMode then Black else LightGrey, 1 - i.toDouble / math.min(body.positionHistory.length, 255.0))
 
-            simGC.beginPath()
-            simGC.moveTo(pos.x, pos.y)
-            simGC.lineTo(posNew.x, posNew.y)
-            simGC.stroke()
-            pos = posNew
-
+              simGC.beginPath()
+              simGC.moveTo(pos.x, pos.y)
+              simGC.lineTo(posNew.x, posNew.y)
+              simGC.stroke()
+              pos = posNew
       )
 
       // draw the bodies
       sim.selectableBody = None
-      sim.space.bodies.foreach(body =>
-        val drawRadius = bodyDrawRadius(body)
-        var pos = positionToPixel(sim.canvas, body.position)
-        simGC.fill = body.color
-        simGC.fillOval(
-          pos.x - drawRadius,
-          pos.y - drawRadius,
-          drawRadius * 2,
-          drawRadius * 2
+      sim.space.bodies
+        .sortWith((b1, b2) =>
+          if b1.position.z < b2.position.z then
+            true
+          else if b1.position.z == b2.position.z then
+            if b1.radius < b2.radius then
+              true
+            else if b1.radius == b2.radius then
+              b1.mass < b2.mass
+            else
+              false
+          else
+            false
         )
+        .foreach(body =>
+          val drawRadius = bodyDrawRadius(body)
+          var pos = positionToPixel(sim.canvas, body.position)
+          simGC.fill = body.color
+          simGC.fillOval(
+            pos.x - drawRadius,
+            pos.y - drawRadius,
+            drawRadius * 2,
+            drawRadius * 2
+          )
 
-        // mark a body as selectable (if there are multiple, choose the most massive)
-        if (cursorPixelPosition - positionToPixel(sim.canvas, body.position)).norm <= drawRadius + 0.01 * sim.canvas.width.value then
-          sim.selectableBody match
-            case Some(prevBody) =>
-              if prevBody.mass < body.mass then sim.selectableBody = Some(body)
-            case None => sim.selectableBody = Some(body)
-
-      )
+          // mark a body as selectable (if there are multiple, choose by multiselection mode)
+          def distance(b: Body) = (cursorPixelPosition - positionToPixel(sim.canvas, b.position))
+          val d = distance(body).noz.norm
+          if d <= drawRadius + 0.01 * sim.canvas.width.value then
+            sim.selectableBody match
+              case Some(prevBody) =>
+                if
+                  multiSelectMode match
+                    case Heaviest => prevBody.mass < body.mass
+                    case Largest => prevBody.radius < body.radius
+                    case Closest2D => d < distance(prevBody).noz.norm
+                    case Closest3D => distance(body).norm < distance(prevBody).norm
+                then sim.selectableBody = Some(body)
+              case None => sim.selectableBody = Some(body)
+        )
 
       // outline the selectable body and write its name
       sim.selectableBody.foreach( selection =>
@@ -557,10 +588,15 @@ object GUI extends JFXApp3:
         case Tool.Nothing => nothingSelector.selected = true
         case Tool.FreeBody => freeBodySelector.selected = true
         case Tool.AutoOrbit => autoOrbitSelector.selected = true
+
       if sim.selectedBody.isEmpty then
+        bodyPanel = None
         bodyPanelContainer.children = List()
-      if sim.selectedBody.nonEmpty && bodyPanelContainer.children.isEmpty then
-        bodyPanelContainer.children = List(BodyPanel(sim.selectedBody.get))
+      if sim.selectedBody.isDefined && bodyPanelContainer.children.isEmpty then
+        bodyPanel = Some(BodyPanel(sim.selectedBody.get))
+        bodyPanelContainer.children = List(bodyPanel.get)
+      if sim.selectedBody.isDefined && bodyPanel.isDefined then
+        bodyPanel.get.update()
       val tab = getTab(sim)
       if tab.getText != sim.name then tab.setText(sim.name)
 
@@ -600,7 +636,7 @@ object GUI extends JFXApp3:
      }
       catch
         case e: NotImplementedError => AlertManager.alert("This feature is not implemented yet")
-        case e => AlertManager.alert(e.toString)
+        case e => throw e
     }
 
     timer.start()
