@@ -19,25 +19,16 @@ class Body(var position: Vector3D, var name: String = "Body"):   // m
   var orbitPrecision: Int = 1
   private var orbitPrecisionCounter = 0
 
-  /** Update the position based on current velocity
+  /** Update the position history based on new position
    * @param deltaTime Simulation time step.
    * @return
    */
-  def updatePosition(deltaTime: Double) =
-    position += velocity * deltaTime
+  def updateTrail(deltaTime: Double) =
     orbitPrecisionCounter += 1
-
     if orbitPrecisionCounter % orbitPrecision == 0 then
       positionHistory += position
       if positionHistory.length >= 255 then positionHistory.remove(0)
-
-   /** Update the velocity based on current acceleration
-   * @param deltaTime Simulation time step.
-   * @return
-   */
-  def updateVelocity(deltaTime: Double) =
-    velocity += acceleration * deltaTime
-
+  
   /** Update the acceleration based on the total force
    * @param totalForce Total force applied to the body.
    * @return

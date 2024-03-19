@@ -2,5 +2,6 @@ package tools
 
 enum CollisionMode:
   case Merge
-  case Bounce
+  case Elastic
+  case Inelastic
   case Disabled

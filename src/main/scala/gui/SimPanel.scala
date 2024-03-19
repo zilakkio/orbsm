@@ -8,8 +8,8 @@ import engine.*
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.text.Font
-import tools.CollisionMode.{Bounce, Disabled, Merge}
-import tools.Integrator.{ExplicitEuler, RK2, SemiImplicitEuler, Verlet}
+import tools.CollisionMode.{Disabled, Elastic, Inelastic, Merge}
+import tools.Integrator.{ExplicitEuler, RK2, RK4, Random, SemiImplicitEuler, Verlet}
 
 class SimPanel(val sim: Simulation) extends GridPane:
 
@@ -37,42 +37,48 @@ class SimPanel(val sim: Simulation) extends GridPane:
         sim.safeTimeStep = text().toDouble
       )
 
+    val speedField = new TextField:
+      text = sim.speed.toString
+      focused.onChange((_, _, _) =>
+        sim.speed = text().toDouble
+      )
+
     val collisionField = new ChoiceBox[CollisionMode]:
       prefWidth = 150
       value = sim.collisionMode
-      items = ObservableBuffer(Merge, Bounce, Disabled)
+      items = ObservableBuffer(Merge, Elastic, Inelastic, Disabled)
 
-      focused.onChange((_, _, _) =>
+      onAction = (event =>
         sim.collisionMode = value.value
       )
 
     val integratorField = new ChoiceBox[Integrator]:
       prefWidth = 150
       value = sim.integrator
-      items = ObservableBuffer(ExplicitEuler, SemiImplicitEuler, Verlet, RK2)
+      items = ObservableBuffer(ExplicitEuler, SemiImplicitEuler, Verlet, RK2, RK4, Random)
 
-      focused.onChange((_, _, _) =>
+      onAction = (event =>
         sim.integrator = value.value
       )
 
     val vectorVelocityCheckbox = new CheckBox():
       allowIndeterminate = false
       selected = sim.showVelocityVectors
-      focused.onChange((_, _, _) =>
+      onAction = (event =>
         sim.showVelocityVectors = selected.value
       )
 
     val vectorAccelerationCheckbox = new CheckBox():
       allowIndeterminate = false
       selected = sim.showAccelerationVectors
-      focused.onChange((_, _, _) =>
+      onAction = (event =>
         sim.showAccelerationVectors = selected.value
       )
 
     val trailCheckbox = new CheckBox():
       allowIndeterminate = false
       selected = sim.showTrails
-      focused.onChange((_, _, _) =>
+      onAction = (event =>
         sim.showTrails = selected.value
       )
 
@@ -99,14 +105,20 @@ class SimPanel(val sim: Simulation) extends GridPane:
     add(Label("Safe timestep, s:"), 0, 3)
     add(timestepField, 1, 3)
 
-    add(Label("Collisions:"), 0, 4)
-    add(collisionField, 1, 4)
+    add(Label("Speed, days/s:"), 0, 4)
+    add(speedField, 1, 4)
 
-    add(Label("Integrator:"), 0, 5)
-    add(integratorField, 1, 5)
+    add(Label("Collisions:"), 0, 5)
+    add(collisionField, 1, 5)
 
-    add(Label("v-vectors:"), 0, 6)
-    add(vectorVelocityCheckbox, 1, 6)
+    add(Label("Integrator:"), 0, 6)
+    add(integratorField, 1, 6)
 
-    add(Label("a-vectors:"), 0, 7)
-    add(vectorAccelerationCheckbox, 1, 7)
+    add(Label("v-vectors:"), 0, 7)
+    add(vectorVelocityCheckbox, 1, 7)
+
+    add(Label("a-vectors:"), 0, 8)
+    add(vectorAccelerationCheckbox, 1, 8)
+
+    add(Label("Display trails:"), 0, 9)
+    add(trailCheckbox, 1, 9)

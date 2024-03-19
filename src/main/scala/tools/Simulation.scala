@@ -4,7 +4,7 @@ import engine.{Body, SimulationSpace, Vector3D}
 import scalafx.scene.canvas.Canvas
 import scalafx.scene.paint.Color.Black
 import tools.Centering.AtBody
-import tools.CollisionMode.{Bounce, Merge}
+import tools.CollisionMode.{Elastic, Merge, Disabled}
 import tools.Integrator.SemiImplicitEuler
 
 import scala.collection.mutable.Buffer
@@ -21,12 +21,12 @@ class Simulation:
   var space: SimulationSpace = SimulationSpace()
 
   var safeTimeStep = 60.0
-  var collisionMode: CollisionMode = Bounce
+  var collisionMode: CollisionMode = Elastic
   var integrator: Integrator = SemiImplicitEuler
   
-  var showVelocityVectors: Boolean = false
-  var showAccelerationVectors: Boolean = false
-  var showTrails: Boolean = false
+  var showVelocityVectors: Boolean = true
+  var showAccelerationVectors: Boolean = true
+  var showTrails: Boolean = true
 
   var workingFile: String = ""  
   val fpsRecords: Buffer[Double] = Buffer()
@@ -106,6 +106,7 @@ class Simulation:
     if !stopped then
       for i <- 1 to tpf.toInt do
         space.tick(deltaTime * speed * 86400 * (1.0 / tpf.toInt.toDouble), integrator, collisionMode)
+    if showTrails then space.bodies.foreach(_.updateTrail(deltaTime))
 
   def pause() =
     stopped = true

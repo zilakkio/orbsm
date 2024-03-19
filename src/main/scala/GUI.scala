@@ -335,8 +335,8 @@ object GUI extends JFXApp3:
     def toggleLightMode() =
       lightMode = !lightMode
       if lightMode then
-        scene.setUserAgentStylesheet("styles/primer-light.css")
-        Settings.theme = "/styles/primer-light.css"
+        scene.setUserAgentStylesheet("styles/cupertino-light.css")
+        Settings.theme = "/styles/cupertino-light.css"
       else
         scene.setUserAgentStylesheet("styles/dracula.css")
         Settings.theme = "/styles/dracula.css"
@@ -473,7 +473,7 @@ object GUI extends JFXApp3:
         val orbitRadius = body.velocity.norm * body.velocity.norm / body.acceleration.norm
         val orbitLengthPixel = (orbitRadius * 2 * Settings.pi) / sim.metersPerPixel
         val speedPixel = body.velocity.norm / sim.metersPerPixel
-        body.setOrbitPrecision((orbitLengthPixel / (speedPixel) / (sim.speed * 86400)) * sim.tpf)
+        body.setOrbitPrecision((orbitLengthPixel / (speedPixel) / (sim.speed * 86400)) * sim.tpf / 256)
 
         val drawRadius = bodyDrawRadius(body)
         simGC.lineWidth = 1
@@ -572,7 +572,7 @@ object GUI extends JFXApp3:
       simGC.fillText(
         f"${(avg).round.toString} FPS | ${(1000 / avg)}%.2f ms | ${sim.speed}%.2f days/s | ${(sim.speed / avg * 24)}%.2f h/frame \n" +
         { if !sim.stopped then f"${((avg).round * sim.tpf).toString} TPS | ${(1000 / avg / sim.tpf)}%.2f ms | ${(sim.speed / avg * 24 * 60 / sim.tpf)}%.2f min/tick \n" else "0 TPS\n" } +
-        f"${sim.tool} | " +
+        f"${sim.integrator} | show_trails: ${sim.showTrails} | show_v: ${sim.showVelocityVectors} | show_a: ${sim.showAccelerationVectors} | ${sim.tool} | " +
           f"${
             sim.centering match
               case Centering.AtBody(body) => body.name

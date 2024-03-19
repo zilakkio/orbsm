@@ -5,9 +5,13 @@ enum Integrator:
   case SemiImplicitEuler
   case Verlet
   case RK2
+  case RK4
+  case Random
 
   override def toString: String = this match
     case ExplicitEuler => "Explicit Euler"
     case SemiImplicitEuler => "Semi-impl. Euler"
     case Verlet => "Verlet"
     case RK2 => "RK2"
+    case RK4 => "RK4"
+    case Random => "Random"

@@ -1,6 +1,6 @@
 package engine
 
-import tools.Integrator.SemiImplicitEuler
+import tools.Integrator.{ExplicitEuler, RK2, RK4, Random, SemiImplicitEuler, Verlet}
 import tools.{CollisionMode, Integrator}
 
 import scala.collection.mutable
@@ -73,18 +73,69 @@ class SimulationSpace:
    */
   def tick(deltaTime: Double, integrator: Integrator, collisionMode: CollisionMode) =
     integrator match
+      case ExplicitEuler =>
+        bodies.foreach(body =>
+          body.position += body.velocity * deltaTime
+          body.velocity += body.acceleration * deltaTime
+          val totalForce = calculateTotalForce(body) // N
+          body.updateAcceleration(totalForce) // m/s^2
+        )
       case SemiImplicitEuler =>
-        // semi-implicit euler
         bodies.foreach(body =>
-          val totalForce = calculateTotalForce(body)  // N
-          body.updateAcceleration(totalForce)  // m/s^2
-          body.updateVelocity(deltaTime)  // m/s
+          body.updateAcceleration(calculateTotalForce(body))  // m/s^2
+          body.velocity += body.acceleration * deltaTime  // m/s
         )
         bodies.foreach(body =>
-          body.updatePosition(deltaTime)  // m
+          body.position += body.velocity * deltaTime  // m
         )
-        updateCollisions(collisionMode)
-      case _ => ???
+      case Verlet =>
+        bodies.foreach(body =>
+          val previousAcceleration = body.acceleration
+          body.updateAcceleration(calculateTotalForce(body)) // m/s^2
+          body.velocity += (previousAcceleration + body.acceleration) * deltaTime * 0.5
+        )
+        bodies.foreach(body =>
+          body.position += body.velocity * deltaTime + 0.5 * body.acceleration * deltaTime * deltaTime
+        )
+      case RK2 =>
+        bodies.foreach(body =>
+          val positionMidpoint = body.position + body.velocity * 0.5 * deltaTime
+          val velocityMidpoint = body.velocity + body.acceleration * 0.5 * deltaTime
+          val oldPosition = body.position
+          body.position = positionMidpoint
+          body.updateAcceleration(calculateTotalForce(body))
+          body.position = oldPosition + (velocityMidpoint * deltaTime)
+          body.velocity += body.acceleration * deltaTime
+        )
+      case RK4 =>
+        bodies.foreach(body =>
+          def accelerationAt(point: Vector3D) =
+            val actualPosition = body.position
+            val actualAcceleration = body.acceleration
+            body.position = point
+            body.updateAcceleration(calculateTotalForce(body))
+            val result = body.acceleration
+            body.acceleration = actualAcceleration
+            body.position = actualPosition
+            result
+
+          body.updateAcceleration(calculateTotalForce(body))
+          val k1velocity = deltaTime * body.acceleration
+          val k1position = deltaTime * body.velocity
+          val k2velocity = deltaTime * accelerationAt(body.position + 0.5 * k1position)
+          val k2position = deltaTime * (body.velocity + 0.5 * k1velocity)
+          val k3velocity = deltaTime * accelerationAt(body.position + 0.5 * k2position)
+          val k3position = deltaTime * (body.velocity + 0.5 * k2velocity)
+          val k4velocity = deltaTime * accelerationAt(body.position + k3position)
+          val k4position = deltaTime * (body.velocity + k3velocity)
+          body.velocity += (1/6) * (k1velocity + (2 * k2velocity) + (2 * k3velocity) + k4velocity)
+          println(body.position)
+          body.position += (1/6) * (k1position + (2 * k2position) + (2 * k3position) + k4position)
+          print(k1position); print(k2position); print(k3position); print(k4position)
+          println(body.position)
+        )
+      case Random => ()
+    updateCollisions(collisionMode)
 
   /** Check for collisions between the bodies and handle them.
    *
@@ -105,10 +156,14 @@ class SimulationSpace:
             else
               body2.mass += body1.mass
               filtered = bodies.filter(_ != body1)
-          case CollisionMode.Bounce =>
+          case CollisionMode.Elastic =>
             body1.velocity = ((body1.mass - body2.mass) * body1.velocity + body2.velocity * 2 * body2.mass) / (body1.mass + body2.mass)
             body2.velocity = ((body2.mass - body1.mass) * body2.velocity + body1.velocity * 2 * body1.mass) / (body1.mass + body2.mass)
-          case _ => ()
+          case CollisionMode.Inelastic =>
+            val v = (body1.mass * body1.velocity + body2.mass * body2.velocity) / (body1.mass + body2.mass)
+            body1.velocity = v
+            body2.velocity = v
+          case CollisionMode.Disabled => ()
     bodies = filtered
 
   def massCenter: Vector3D =
