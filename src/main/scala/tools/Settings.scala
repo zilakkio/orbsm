@@ -14,3 +14,12 @@ object Settings:
   val fontMain = Font.loadFont(getClass.getResource("/fonts/Inter-Medium.ttf").toExternalForm, 12)
   val fontTitle = Font.loadFont(getClass.getResource("/fonts/Inter-Bold.ttf").toExternalForm, 32)
   val fontMono = Font.loadFont(getClass.getResource("/fonts/JetBrainsMono-Bold.ttf").toExternalForm, 12)
+
+  var showVelocityVectors = true
+  var showAccelerationVectors = true
+  var showTrails = true
+  var showGrid = true
+  var showInfo = true
+  
+  var multiSelectMode = MultiSelectMode.Heaviest
+  var tool = Tool.Nothing

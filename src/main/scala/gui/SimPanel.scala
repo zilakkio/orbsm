@@ -12,7 +12,7 @@ import tools.CollisionMode.{Disabled, Elastic, Inelastic, Merge}
 import tools.Integrator.{ExplicitEuler, RK2, RK4, Random, SemiImplicitEuler, Verlet}
 
 class SimPanel(val sim: Simulation) extends GridPane:
-  
+
     padding = Insets(20, 20, 10, 10)
 
     val title = new Label:
@@ -61,36 +61,15 @@ class SimPanel(val sim: Simulation) extends GridPane:
         sim.integrator = value.value
       )
 
-    val vectorVelocityCheckbox = new CheckBox():
-      allowIndeterminate = false
-      selected = sim.showVelocityVectors
-      onAction = (event =>
-        sim.showVelocityVectors = selected.value
-      )
-
-    val vectorAccelerationCheckbox = new CheckBox():
-      allowIndeterminate = false
-      selected = sim.showAccelerationVectors
-      onAction = (event =>
-        sim.showAccelerationVectors = selected.value
-      )
-
-    val trailCheckbox = new CheckBox():
-      allowIndeterminate = false
-      selected = sim.showTrails
-      onAction = (event =>
-        sim.showTrails = selected.value
-      )
-
     this.hgap = 10
     this.vgap = 10
 
     val labelColumn = new ColumnConstraints()
-    labelColumn.minWidth = 120
+    labelColumn.minWidth = 150
 
     val inputColumn = new ColumnConstraints()
-    inputColumn.minWidth = 150
-    inputColumn.maxWidth = 150
+    inputColumn.minWidth = 135
+    inputColumn.maxWidth = 135
 
     columnConstraints.addAll(labelColumn, inputColumn)
 
@@ -98,26 +77,17 @@ class SimPanel(val sim: Simulation) extends GridPane:
 
     add(nameField, 0, 1, 2, 1)
 
-    add(Label("Target FPS:"), 0, 2)
+    add(new Label("Target FPS:"), 0, 2)
     add(fpsField, 1, 2)
 
-    add(Label("Safe timestep, s:"), 0, 3)
+    add(new Label("Safe timestep, s:") {graphic = Icons.get("time")}, 0, 3)
     add(timestepField, 1, 3)
 
-    add(Label("Speed, days/s:"), 0, 4)
+    add(new Label("Speed, days/s:") {graphic = Icons.get("speed-up")}, 0, 4)
     add(speedField, 1, 4)
 
-    add(Label("Collisions:"), 0, 5)
+    add(new Label("Collisions:"), 0, 5)
     add(collisionField, 1, 5)
 
-    add(Label("Integrator:"), 0, 6)
+    add(new Label("Integrator:") {graphic = Icons.get("formula")}, 0, 6)
     add(integratorField, 1, 6)
-
-    add(Label("v-vectors:"), 0, 7)
-    add(vectorVelocityCheckbox, 1, 7)
-
-    add(Label("a-vectors:"), 0, 8)
-    add(vectorAccelerationCheckbox, 1, 8)
-
-    add(Label("Display trails:"), 0, 9)
-    add(trailCheckbox, 1, 9)

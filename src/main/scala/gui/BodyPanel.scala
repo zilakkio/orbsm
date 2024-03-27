@@ -91,13 +91,13 @@ class BodyPanel(val body: Body) extends GridPane:
 
   add(nameField, 0, 1, 5, 1)
 
-  add(Label("Mass, earths:"), 0, 2)
+  add(new Label("Mass, earths:") {graphic = Icons.get("weight")}, 0, 2)
   add(massField, 1, 2, 4, 1)
 
-  add(Label("Radius, earths:"), 0, 3)
+  add(new Label("Radius, earths:") {graphic = Icons.get("box-3")}, 0, 3)
   add(radiusField, 1, 3, 4, 1)
 
-  add(Label("Speed, m/s:"), 0, 4)
+  add(new Label("Speed, m/s:") {graphic = Icons.get("speed-up")}, 0, 4)
   add(velocityField, 1, 4, 4, 1)
 
   add(velocityButtonInv, 1, 5)
@@ -105,5 +105,5 @@ class BodyPanel(val body: Body) extends GridPane:
   add(velocityButton05, 3, 5)
   add(velocityButton2, 4, 5)
 
-  add(Label("Color:"), 0, 6)
+  add(new Label("Color:") {graphic = Icons.get("color")}, 0, 6)
   add(colorPicker, 1, 6, 4, 1)

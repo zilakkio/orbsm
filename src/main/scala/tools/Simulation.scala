@@ -23,10 +23,6 @@ class Simulation:
   var safeTimeStep = 60.0
   var collisionMode: CollisionMode = Elastic
   var integrator: Integrator = SemiImplicitEuler
-  
-  var showVelocityVectors: Boolean = true
-  var showAccelerationVectors: Boolean = true
-  var showTrails: Boolean = true
 
   var workingFile: String = ""  
   var fpsRecords: Buffer[(Long, Double)] = Buffer()
@@ -35,13 +31,13 @@ class Simulation:
   var selectedBody: Option[Body] = None
   var centering: Centering = Centering.MassCenter
   var zoom: Double = 1.0
-  var tool: Tool = Tool.Nothing
 
   var targetZoom: Double = zoom
   val minPixelsPerAU = 100.0
   val minMetersPerPixel = 1/minPixelsPerAU * 1.496e11
 
   def metersPerPixel = minMetersPerPixel / zoom
+  def pixelsPerAU = minPixelsPerAU * zoom
   def targetPixelOffset = centeringPosition / metersPerPixel
 
   var pixelOffset: Vector3D = targetPixelOffset
@@ -92,13 +88,13 @@ class Simulation:
   def setZoom(newZoom: Double) =
     targetZoom = newZoom
     if targetZoom <= 0 then targetZoom = 0.10
-    
+
   def resetZoom() = setZoom(1.0)
 
   def cameraVelocity: Vector3D = centering match
     case AtBody(body) => body.velocity
     case _ => Vector3D(0.0, 0.0)
-  
+
   def cameraAcceleration: Vector3D = centering match
     case AtBody(body) => body.acceleration
     case _ => Vector3D(0.0, 0.0)
