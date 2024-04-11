@@ -1,10 +1,11 @@
 package tools
 
 import engine.{Body, SimulationSpace, Vector3D}
+import gui.AlertManager
 import scalafx.scene.canvas.Canvas
 import scalafx.scene.paint.Color.Black
 import tools.Centering.AtBody
-import tools.CollisionMode.{Elastic, Merge, Disabled}
+import tools.CollisionMode.{Disabled, Elastic, Merge}
 import tools.Integrator.SemiImplicitEuler
 
 import scala.collection.mutable.Buffer
@@ -14,10 +15,12 @@ import scala.collection.mutable.Buffer
  */
 class Simulation:
   var name: String = "New Simulation"
-  var fps: Int = 120
+  var fps: Double = 120
   var tpf: Double = 10
   var speed: Double = 1.0
+  var targetSpeed: Double = 1.0
   var stopped: Boolean = false
+  var reversed: Boolean = false
   var space: SimulationSpace = SimulationSpace()
 
   var safeTimeStep = 60.0
@@ -57,9 +60,15 @@ class Simulation:
     )
     sum / fpsRecords.length
 
+  def getFPS =
+    fpsRecords.slice(fpsRecords.length - 5, fpsRecords.length).map(_._2).sum / 5.0
+
   def setTPF(newTPF: Double) =
     tpf = newTPF
     if tpf < 1 then tpf = 1
+
+  def setSpeed(newSpeed: Double) =
+    targetSpeed = newSpeed
 
   def recordFPS(record: Double) =
     val now = System.currentTimeMillis()
@@ -87,7 +96,8 @@ class Simulation:
 
   def setZoom(newZoom: Double) =
     targetZoom = newZoom
-    if targetZoom <= 0 then targetZoom = 0.10
+    if targetZoom <= 1.2e-15 then targetZoom = 1.2e-15
+    if targetZoom >= 2.0e8 then targetZoom = 2.0e8
 
   def resetZoom() = setZoom(1.0)
 
@@ -99,11 +109,27 @@ class Simulation:
     case AtBody(body) => body.acceleration
     case _ => Vector3D(0.0, 0.0)
 
+  def timestep = 86400.0 * speed / (tpf * getAverageFPS)
+
   def tick(deltaTime: Double) =
+    if fpsRecords.length >= 20 then
+      tpf *= timestep / safeTimeStep
+    if getAverageFPS > fps && tpf >= 1 then  // high fps
+      tpf *= 1.01
+
+    if targetSpeed < speed || fpsRecords.last._2 > fps then
+      val deltaSpeed = 0.05 * (targetSpeed - speed)
+      speed += deltaSpeed
+    if getAverageFPS < fps then
+      targetSpeed = speed * math.pow(0.97, fps / getAverageFPS)
+
     if !stopped then
-      for i <- 1 to tpf.toInt do
-        space.tick(deltaTime * speed * 86400 * (1.0 / tpf.toInt.toDouble), integrator, collisionMode)
-    space.bodies.foreach(_.updateTrail(deltaTime))
+      val ticksPerFrame = tpf.toInt
+      val targetTimeStep = deltaTime * speed * 86400 / ticksPerFrame
+      val timeStep = math.min(targetTimeStep, safeTimeStep)
+      for i <- 1 to ticksPerFrame do
+        space.tick((if reversed then -1 else 1) * timeStep, integrator, collisionMode)
+        space.bodies.foreach(_.updateTrail(timeStep))
 
   def pause() =
     stopped = true

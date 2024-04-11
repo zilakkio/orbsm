@@ -1,10 +1,11 @@
 package engine
 
 import tools.Integrator.{ExplicitEuler, RK2, RK4, Random, SemiImplicitEuler, Verlet}
-import tools.{CollisionMode, Integrator}
+import tools.{CollisionMode, Integrator, Settings}
 
 import scala.collection.mutable
 import scala.collection.mutable.*
+import scala.language.postfixOps
 
 /** A 2D space where all the bodies are placed and interact.
  *
@@ -128,13 +129,15 @@ class SimulationSpace:
           val k3position = deltaTime * (body.velocity + 0.5 * k2velocity)
           val k4velocity = deltaTime * accelerationAt(body.position + k3position)
           val k4position = deltaTime * (body.velocity + k3velocity)
-          body.velocity += (1/6) * (k1velocity + (2 * k2velocity) + (2 * k3velocity) + k4velocity)
-          println(body.position)
-          body.position += (1/6) * (k1position + (2 * k2position) + (2 * k3position) + k4position)
-          print(k1position); print(k2position); print(k3position); print(k4position)
-          println(body.position)
+          body.velocity += (1/6.0) * (k1velocity + (2 * k2velocity) + (2 * k3velocity) + k4velocity)
+          body.position += (1/6.0) * (k1position + (2 * k2position) + (2 * k3position) + k4position)
         )
-      case Random => ()
+      case Random => bodies.foreach(body =>
+        body.position += body.velocity * deltaTime * (Settings.random.nextDouble() + 0.5)
+        body.velocity += body.acceleration * deltaTime * (Settings.random.nextDouble() + 0.5)
+        val totalForce = calculateTotalForce(body) // N
+        body.updateAcceleration(totalForce * (Settings.random.nextDouble() + 0.5))
+        )
     updateCollisions(collisionMode)
 
   /** Check for collisions between the bodies and handle them.
@@ -176,3 +179,12 @@ class SimulationSpace:
       center += body.mass * body.position
     )
     center / totalMass
+
+  def attractorStrength(attractor: Body, position: Vector3D): Double =
+    val virtualBody = Body(position)
+    val total = calculateTotalForce(virtualBody)
+    val attraction = GravitationalForce.calculate(virtualBody, attractor)
+    (total dot attraction) / (total.norm * attraction.norm) * attraction.norm / total.norm
+
+  def hasEscaped(body: Body): Boolean =
+    ((body.position - massCenter) dot body.velocity) < -0.02 && body.pathCurvatureRadius > 1e15

@@ -20,13 +20,13 @@ class BodyDialog(
 
   dialogPane().buttonTypes = Seq(createButtonType, cancelButtonType)
 
-  val xPosField = new TextField { text = body.positionAU.x.toString; promptText = "x, m/s" }
-  val yPosField = new TextField { text = body.positionAU.y.toString; promptText = "y, m/s" }
-  val zPosField = new TextField { text = body.positionAU.z.toString; promptText = "z, m/s" }
+  val xPosField = new TextField { text = body.positionAU.x.toString; promptText = "x, AU" }
+  val yPosField = new TextField { text = body.positionAU.y.toString; promptText = "y, AU" }
+  val zPosField = new TextField { text = body.positionAU.z.toString; promptText = "z, AU" }
 
-  val xVelField = new TextField { text = body.velocity.x.toString; promptText = "Vx, AU" }
-  val yVelField = new TextField { text = body.velocity.y.toString; promptText = "Vy, AU" }
-  val zVelField = new TextField { text = body.velocity.z.toString; promptText = "Vz, AU" }
+  val xVelField = new TextField { text = body.velocity.x.toString; promptText = "Vx, m/s" }
+  val yVelField = new TextField { text = body.velocity.y.toString; promptText = "Vy, m/s" }
+  val zVelField = new TextField { text = body.velocity.z.toString; promptText = "Vz, m/s" }
 
   val massField = new TextField { text = body.massEarths.toString; promptText = "m, earths" }
   val radiusField = new TextField { text = body.radiusEarths.toString; promptText = "r, earths" }

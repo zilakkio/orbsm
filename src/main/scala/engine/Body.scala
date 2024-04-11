@@ -36,10 +36,6 @@ class Body(var position: Vector3D, var name: String = "Body"):   // m
   def updateAcceleration(totalForce: Vector3D) =
     acceleration = (1 / mass) * totalForce
 
-  /** Update the position based on current velocity
-   * @param other Other body to check a collision with.
-   * @return true if two bodies are close enough. false otherwise
-   */
   def checkCollision(other: Body): Boolean =
     (this.position - other.position).norm <= this.radius + other.radius
 
@@ -55,10 +51,14 @@ class Body(var position: Vector3D, var name: String = "Body"):   // m
   def massEarths = mass / Settings.earthMass
 
   def radiusEarths = radius / Settings.earthRadius
-
+  
+  def pathCurvatureRadius = velocity.norm * velocity.norm / acceleration.norm
+  
+  override def toString: String = name
+/*
   override def toString: String = f"\n\n$name\n" +
     f"r = [ ${positionAU.x}%.3f ${positionAU.y}%.3f ${positionAU.z}%.3f ] AU\n" +
     f"v = [ ${velocity.x}%.1f ${velocity.y}%.1f ${velocity.z}%.1f ] m/s\n" +
     f"a = [ ${acceleration.x * 1000}%.5f ${acceleration.y * 1000}%.5f ${acceleration.z * 1000}%.5f ] mm/s/s\n" +
     f"mass = ${massEarths}%.5f earths\n" +
-    f"radius = ${radiusEarths}%.3f earth"
+    f"radius = ${radiusEarths}%.3f earth"*/

@@ -40,7 +40,7 @@ class SimPanel(val sim: Simulation) extends GridPane:
     val speedField = new TextField:
       text = sim.speed.toString
       focused.onChange((_, _, _) =>
-        sim.speed = text().toDouble
+        sim.setSpeed(text().toDouble)
       )
 
     val collisionField = new ChoiceBox[CollisionMode]:
@@ -83,7 +83,7 @@ class SimPanel(val sim: Simulation) extends GridPane:
     add(new Label("Safe timestep, s:") {graphic = Icons.get("time")}, 0, 3)
     add(timestepField, 1, 3)
 
-    add(new Label("Speed, days/s:") {graphic = Icons.get("speed-up")}, 0, 4)
+    add(new Label("Speed, days/s:") {graphic = Icons.get("speed")}, 0, 4)
     add(speedField, 1, 4)
 
     add(new Label("Collisions:"), 0, 5)

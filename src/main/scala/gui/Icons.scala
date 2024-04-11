@@ -39,7 +39,12 @@ object Icons:
     "weight" -> "weight-line.png",
     "info" -> "information-2-line.png",
     "color" -> "palette-line.png",
-    "time" -> "time-line.png"
+    "time" -> "time-line.png",
+    "orbit" -> "orbit.png",
+    "a" -> "a.png",
+    "v" -> "v.png",
+    "distance" -> "distance.png",
+    "radius" -> "radius.png",
   )
 
   def get(name: String): ImageView = new ImageView(Image(getClass.getResourceAsStream(s"/icons/${nameMap(name)}"))) {fitWidth = 24; fitHeight = 24}

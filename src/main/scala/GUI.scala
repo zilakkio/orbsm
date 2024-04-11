@@ -1,7 +1,6 @@
 import tools.Centering.{AtBody, MassCenter}
 import tools.Tool.*
 import engine.{Body, GravitationalForce, Vector3D}
-import gui.AlertManager.stage
 import gui.{AlertManager, BodyDialog, BodyPanel, Icons, MainToolBar, SimPanel}
 import scalafx.animation.AnimationTimer
 import scalafx.application.{JFXApp3, Platform}
@@ -15,6 +14,7 @@ import scalafx.scene.control.*
 import scalafx.scene.control.ScrollPane.ScrollBarPolicy
 import scalafx.scene.paint.Color
 import scalafx.scene.text.Font
+import scalafx.Includes.jfxColor2sfx
 import scalafx.stage.{FileChooser, Stage, StageStyle}
 import scalafx.stage.FileChooser.ExtensionFilter
 import tools.{Centering, Simulation, Tool}
@@ -61,14 +61,14 @@ object GUI extends JFXApp3:
     def fitZoom() =
       val halfHeightZoomedAU = sim.space.bodies.map(body => (body.position - sim.centeringPosition).norm).max / Settings.metersPerAU
       val halfHeightAU = sim.canvas.height.value / 200
-      sim.targetZoom = halfHeightAU / halfHeightZoomedAU
+      sim.setZoom(halfHeightAU / halfHeightZoomedAU)
 
     def focusZoom(body: Body) =
       val halfWidthZoomedAU = sim.space.bodies
         .filter(_ != sim.selectedBody.getOrElse(sim.space.bodies.head))
         .map(body => (body.position - sim.centeringPosition).norm).min / Settings.metersPerAU
       val halfWidthAU = sim.canvas.width.value / 200
-      sim.targetZoom = halfWidthAU / halfWidthZoomedAU
+      sim.setZoom(halfWidthAU / halfWidthZoomedAU)
 
     def vVector(body: Body) = body.velocity.unit / (bodiesVisible.maxBy(_.velocity.norm).velocity.norm / body.velocity.norm)
 
@@ -283,10 +283,10 @@ object GUI extends JFXApp3:
               sim.stopped = !sim.stopped
           val itemSpeedUp = new MenuItem("Speed x2 \t\t\t Ctrl+RIGHT"):
             onAction = (event) =>
-              sim.speed *= 2
+              sim.setSpeed(sim.speed * 2)
           val itemSlowDown = new MenuItem("Speed x0.5 \t\t\t Ctrl+LEFT"):
             onAction = (event) =>
-              sim.speed /= 2
+              sim.setSpeed(sim.speed / 2)
           val itemTickUp = new MenuItem("Tickrate x2 \t\t\t Ctrl+UP"):
             onAction = (event) =>
               sim.setTPF(sim.tpf * 2)
@@ -304,13 +304,13 @@ object GUI extends JFXApp3:
               focus()
           val itemResetZoom = new MenuItem("Reset zoom \t\t Ctrl+R"):
             onAction = (event) =>
-              sim.targetZoom = 1.0
+              sim.setZoom(1.0)
           val itemZoomIn = new MenuItem("Zoom in \t\t\t Ctrl +"):
             onAction = (event) =>
-              sim.targetZoom *= 2
+              sim.setZoom(2 * sim.targetZoom)
           val itemZoomOut = new MenuItem("Zoom out \t\t Ctrl -"):
             onAction = (event) =>
-              sim.targetZoom *= 0.5
+              sim.setZoom(0.5 * sim.targetZoom)
           items = List(itemCenter, itemFocus, itemResetZoom, itemZoomIn, itemZoomOut)
 
         menus = List(menuFile, menuSim, menuView)
@@ -335,9 +335,39 @@ object GUI extends JFXApp3:
         focus()
       )
 
+    val runSelector = ToggleGroup()
+
+    val forwardSelector = new ToggleButton():
+      graphic = Icons.get("play")
+      selected = true
+      toggleGroup = runSelector
+      onAction = (event) => { sim.stopped = false; sim.reversed = false }
+
+    val stopSelector = new ToggleButton():
+      graphic = Icons.get("pause")
+      toggleGroup = runSelector
+      onAction = (event) => sim.stopped = true
+
+    val reverseSelector = new ToggleButton():
+      graphic = Icons.get("play-reverse")
+      toggleGroup = runSelector
+      onAction = (event) => { sim.stopped = false; sim.reversed = true }
+
+    def sep = new Separator():
+      prefWidth = 70
+      visible = false
+
+    def minisep = new Separator():
+      prefWidth = 10
+      visible = false
+
     val toolBar = MainToolBar()
     toolBar.items.add(centerButton)
     toolBar.items.add(focusButton)
+    toolBar.items.add(sep)
+    toolBar.items.add(reverseSelector)
+    toolBar.items.add(stopSelector)
+    toolBar.items.add(forwardSelector)
 
     sidePanel.children = Array(bodyPanelContainer, simPanelContainer)
 
@@ -346,9 +376,6 @@ object GUI extends JFXApp3:
     root.right = sideScrollable
     root.center = spaceView
     root.bottom = toolBar
-
-    // set up alerts
-    AlertManager.stage = Some(stage)
 
     // Define grid row and column size
     val column0 = new ColumnConstraints:
@@ -392,14 +419,14 @@ object GUI extends JFXApp3:
 
         case "SPACE" if ctrlPressed => sim.stopped = !sim.stopped                                             // start/stop
 
-        case "LEFT" if ctrlPressed => sim.speed /= 2                                                          // slow down 0.5x
-        case "RIGHT" if ctrlPressed => sim.speed *= 2                                                         // speed up 2x
+        case "LEFT" if ctrlPressed => sim.setSpeed(sim.speed / 2)                                                     // slow down 0.5x
+        case "RIGHT" if ctrlPressed => sim.setSpeed(sim.speed * 2)                                                         // speed up 2x
         case "DOWN" if ctrlPressed => sim.setTPF(sim.tpf / 2)                                                 // tickrate 0.5x
         case "UP" if ctrlPressed => sim.setTPF(sim.tpf * 2)                                                   // tickrate 2x
 
-        case "R" if ctrlPressed => sim.targetZoom = 1.0                                                       // reset zoom
-        case "EQUALS" if ctrlPressed => sim.targetZoom *= 2                                                   // zoom 2x
-        case "MINUS" if ctrlPressed => sim.targetZoom *= 0.5                                                  // zoom 0.5x
+        case "R" if ctrlPressed => sim.setZoom(1.0)                                                       // reset zoom
+        case "EQUALS" if ctrlPressed => sim.setZoom(2 * sim.targetZoom)                                                   // zoom 2x
+        case "MINUS" if ctrlPressed => sim.setZoom(0.5 * sim.targetZoom)                                                  // zoom 0.5x
 
         case "G" if ctrlPressed => center()                                                                   // center at mass center
         case "V" if ctrlPressed => moveCamera()                                                               // center at cursor position
@@ -448,9 +475,15 @@ object GUI extends JFXApp3:
           sim.centering = Centering.Custom(sim.centeringWhenEnteredDrag.get - (sim.cursorPosition - pixelToPosition(enterPixelPosition.x, enterPixelPosition.y)))
         case None => ()
 
-      // empty dark space
-      simGC.fill = if lightMode then LightGray else Black
+      // empty space
+      simGC.fill = Purple
       simGC.fillRect(0, 0, sim.canvas.width.value, sim.canvas.height.value)
+
+      // observable universe
+      simGC.fill = Black
+      val universeTopLeft = positionToPixel(Vector3D(-2.909e+15 * Settings.metersPerAU, -2.909e+15 * Settings.metersPerAU))
+      val universeDiameter = 2 * 2.909e+15 * Settings.metersPerAU
+      simGC.fillOval(universeTopLeft.x, universeTopLeft.y, universeDiameter, universeDiameter)
 
       // smooth camera movement
       val oldZoom = sim.zoom
@@ -505,6 +538,8 @@ object GUI extends JFXApp3:
           simGC.stroke()
 
         case Tool.AutoOrbit if sim.selectedBody.isDefined =>    // auto-orbit circle
+          val st = sim.space.attractorStrength(sim.selectedBody.get, vPixelToPosition(cursorPixelPosition))
+          simGC.stroke = if st > 0.9 then Gray else Red
           val pos = positionToPixel(sim.selectedBody.get.position)
           val distance = (pos - cursorPixelPosition).norm
 
@@ -521,15 +556,17 @@ object GUI extends JFXApp3:
       // update the orbit precisions and draw the trails
       sim.space.bodies.foreach(body =>
 
-        val orbitRadius = body.velocity.norm * body.velocity.norm / body.acceleration.norm
-        val orbitLengthPixel = (orbitRadius * 2 * Settings.pi) / sim.metersPerPixel
-        val speedPixel = body.velocity.norm / sim.metersPerPixel
-        body.setOrbitPrecision((orbitLengthPixel / (speedPixel) / (sim.speed * 86400)) * sim.tpf / 256)
+        val orbitRadius = body.pathCurvatureRadius
+        val orbitLength = orbitRadius * 2 * Settings.pi
+        val fragmentLength = orbitLength / 256
+        val fragmentTime = fragmentLength / body.velocity.norm
+        val fragmentTicks = fragmentTime / sim.safeTimeStep
+        body.setOrbitPrecision((fragmentTicks * 4/3).toInt)
 
         if Settings.showTrails then
           val drawRadius = bodyDrawRadius(body)
           simGC.lineWidth = 1
-          var pos = positionToPixel(body.positionHistory.head)
+          var pos = positionToPixel(body.position)
           for i <- 1 to 255 do
             if body.positionHistory.length > i then
               val posNew: Vector3D = positionToPixel(body.positionHistory(i))
@@ -540,6 +577,14 @@ object GUI extends JFXApp3:
               simGC.lineTo(posNew.x, posNew.y)
               simGC.stroke()
               pos = posNew
+
+          simGC.stroke = body.color
+          pos = positionToPixel(body.position)
+          simGC.beginPath()
+          simGC.moveTo(pos.x, pos.y)
+          pos = positionToPixel(body.positionHistory.last)
+          simGC.lineTo(pos.x, pos.y)
+          simGC.stroke()
       )
 
 
@@ -640,6 +685,7 @@ object GUI extends JFXApp3:
 
       // update the GUI
       toolBar.update()
+      runSelector.selectToggle(if sim.stopped then stopSelector else if sim.reversed then reverseSelector else forwardSelector)
 
       if sim.selectedBody.isEmpty then
         bodyPanel = None
@@ -691,7 +737,16 @@ object GUI extends JFXApp3:
         simGC.font = Settings.fontMain
 
       // alerts
-      Platform.runLater {
+      val alerts = AlertManager.get()
+      for i <- alerts.indices do
+        val alert = alerts(i)
+        simGC.fill = jfxColor2sfx(alert.color.opacity(alert.opacity))
+        simGC.fillRoundRect(sim.canvas.width.value - 420 + alert.shift, sim.canvas.height.value - 40 - (i * 60) - toolBar.height.value, 400, 40, 20, 20)
+        simGC.fill = jfxColor2sfx(Color.White.opacity(alert.opacity))
+        simGC.font = Settings.fontMono
+        simGC.fillText(alert.message, sim.canvas.width.value - 400 + alert.shift, sim.canvas.height.value - 15 - (i * 60) - toolBar.height.value, 360)
+
+      /*Platform.runLater {
         val alert = AlertManager.get()
         alert match
           case Some(a) =>
@@ -700,7 +755,7 @@ object GUI extends JFXApp3:
             a.showAndWait()
             if !stop then sim.play()
           case None => ()
-      }
+      }*/
      }
       catch
         case e: NotImplementedError => AlertManager.alert("This feature is not implemented yet")

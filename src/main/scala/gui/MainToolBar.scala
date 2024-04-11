@@ -1,7 +1,7 @@
 package gui
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
-import scalafx.scene.control.{Button, Separator, ToggleButton, ToggleGroup, ToolBar}
+import scalafx.scene.control.{Button, Label, Separator, ToggleButton, ToggleGroup, ToolBar}
 import tools.MultiSelectMode.{Closest2D, Closest3D, Heaviest, Largest}
 import tools.{Settings, Tool}
 
@@ -27,45 +27,52 @@ class MainToolBar extends ToolBar:
     toggleGroup = toolSelector
     onAction = (event) => Settings.tool = Tool.AutoOrbit
 
-  val multiSelector = ToggleGroup()
+  val multiSelector = new ToggleGroup()
 
-  val closest2DSelector = new ToggleButton("p2"):
+  val closest2DSelector = new ToggleButton():
+    graphic = Icons.get("distance")
     toggleGroup = multiSelector
     selected = true
     onAction = (event) => Settings.multiSelectMode = Closest2D
 
-  val closest3DSelector = new ToggleButton("p3"):
+/*  val closest3DSelector = new ToggleButton("p3"):
     toggleGroup = multiSelector
-    onAction = (event) => Settings.multiSelectMode = Closest3D
+    onAction = (event) => Settings.multiSelectMode = Closest3D*/
 
   val heaviestSelector = new ToggleButton():
     graphic = Icons.get("weight")
     toggleGroup = multiSelector
     onAction = (event) => Settings.multiSelectMode = Heaviest
 
-  val largestSelector = new ToggleButton("r"):
-
+  val largestSelector = new ToggleButton():
+    graphic = Icons.get("radius")
     toggleGroup = multiSelector
     onAction = (event) => Settings.multiSelectMode = Largest
 
   def sep = new Separator():
-    prefWidth = 100
+    prefWidth = 70
     visible = false
 
-  val vectorVelocityToggle = new ToggleButton("v"):
+  def minisep = new Separator():
+    prefWidth = 10
+    visible = false
+
+  val vectorVelocityToggle = new ToggleButton():
+    graphic = Icons.get("v")
     selected = Settings.showVelocityVectors
     onAction = (event =>
       Settings.showVelocityVectors = selected.value
     )
 
-  val vectorAccelerationToggle = new ToggleButton("a"):
+  val vectorAccelerationToggle = new ToggleButton():
+    graphic = Icons.get("a")
     selected = Settings.showAccelerationVectors
     onAction = (event =>
       Settings.showAccelerationVectors = selected.value
     )
 
   val trailToggle = new ToggleButton():
-    graphic = Icons.get("route")
+    graphic = Icons.get("orbit")
     selected = Settings.showTrails
     onAction = (event =>
       Settings.showTrails = selected.value
@@ -85,9 +92,9 @@ class MainToolBar extends ToolBar:
       Settings.showInfo = selected.value
     )
 
-  items = ObservableBuffer(freeBodySelector, autoOrbitSelector, nothingSelector, sep,
-      closest2DSelector, closest3DSelector, heaviestSelector, largestSelector, sep,
-      vectorVelocityToggle, vectorAccelerationToggle, trailToggle, gridToggle, infoToggle, sep,
+  items = ObservableBuffer(minisep, Label("Place"), minisep, freeBodySelector, autoOrbitSelector, nothingSelector, sep, Label("Select"), minisep,
+      closest2DSelector, heaviestSelector, largestSelector, sep, Label("Display"), minisep,
+      vectorVelocityToggle, vectorAccelerationToggle, trailToggle, gridToggle, infoToggle, sep, Label("View"), minisep,
   )
   
   def update() =

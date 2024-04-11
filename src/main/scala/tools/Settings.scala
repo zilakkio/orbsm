@@ -23,3 +23,5 @@ object Settings:
   
   var multiSelectMode = MultiSelectMode.Heaviest
   var tool = Tool.Nothing
+  
+  val random = scala.util.Random()

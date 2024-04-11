@@ -27,13 +27,15 @@ class BodyPanel(val body: Body) extends GridPane:
     focused.onChange((_, _, _) =>
       try
         body.mass = text().toDouble * Settings.earthMass
-      catch case e => AlertManager.alert(e.toString)
+      catch case _ => AlertManager.alert(f"\"${text.value}\" is not a valid mass")
     )
 
   val radiusField = new TextField:
     text = (body.radius / Settings.earthRadius).toString
     focused.onChange((_, _, _) =>
-      body.radius = text().toDouble * Settings.earthRadius
+      try
+        body.radius = text().toDouble * Settings.earthRadius
+      catch case _ => AlertManager.alert(f"\"${text.value}\" is not a valid radius")
     )
 
   val velocityField = new TextField:
@@ -94,10 +96,10 @@ class BodyPanel(val body: Body) extends GridPane:
   add(new Label("Mass, earths:") {graphic = Icons.get("weight")}, 0, 2)
   add(massField, 1, 2, 4, 1)
 
-  add(new Label("Radius, earths:") {graphic = Icons.get("box-3")}, 0, 3)
+  add(new Label("Radius, earths:") {graphic = Icons.get("radius")}, 0, 3)
   add(radiusField, 1, 3, 4, 1)
 
-  add(new Label("Speed, m/s:") {graphic = Icons.get("speed-up")}, 0, 4)
+  add(new Label("Speed, m/s:") {graphic = Icons.get("v")}, 0, 4)
   add(velocityField, 1, 4, 4, 1)
 
   add(velocityButtonInv, 1, 5)
