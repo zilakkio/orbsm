@@ -8,7 +8,7 @@ import engine.*
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.text.Font
-import tools.CollisionMode.{Disabled, Elastic, Inelastic, Merge}
+import tools.CollisionMode.{Disabled, Inelastic, Merge}
 import tools.Integrator.{ExplicitEuler, RK2, RK4, Random, SemiImplicitEuler, Verlet}
 
 class SimPanel(val sim: Simulation) extends GridPane:
@@ -26,27 +26,41 @@ class SimPanel(val sim: Simulation) extends GridPane:
       )
 
     val fpsField = new TextField:
-      text = sim.fps.toString
+      text = sim.fps.toInt.toString
+      def updateFPS() =
+        try
+          assert(text().toDouble.toInt >= 0)
+          sim.fps = text().toDouble.toInt
+        catch
+          case _ =>
+            AlertManager.alert("Target FPS should be a non-negative number")
+            text = sim.fps.toInt.toString
       focused.onChange((_, _, _) =>
-        sim.fps = text().toInt
+        updateFPS()
       )
+      onKeyReleased = (event) =>
+        if event.getCode.toString == "ENTER" then updateFPS()
 
     val timestepField = new TextField:
       text = sim.safeTimeStep.toString
+      def updateTimestep() =
+        try
+          assert(text().toDouble > 0)
+          sim.safeTimeStep = text().toDouble
+        catch
+          case _ =>
+            AlertManager.alert("Timestep should be a positive number")
+            text = sim.safeTimeStep.toString
       focused.onChange((_, _, _) =>
-        sim.safeTimeStep = text().toDouble
+        updateTimestep()
       )
-
-    val speedField = new TextField:
-      text = sim.speed.toString
-      focused.onChange((_, _, _) =>
-        sim.setSpeed(text().toDouble)
-      )
+      onKeyReleased = (event) =>
+        if event.getCode.toString == "ENTER" then updateTimestep()
 
     val collisionField = new ChoiceBox[CollisionMode]:
       prefWidth = 150
       value = sim.collisionMode
-      items = ObservableBuffer(Merge, Elastic, Inelastic, Disabled)
+      items = ObservableBuffer(Merge, Inelastic, Disabled)
 
       onAction = (event =>
         sim.collisionMode = value.value
@@ -83,11 +97,8 @@ class SimPanel(val sim: Simulation) extends GridPane:
     add(new Label("Safe timestep, s:") {graphic = Icons.get("time")}, 0, 3)
     add(timestepField, 1, 3)
 
-    add(new Label("Speed, days/s:") {graphic = Icons.get("speed")}, 0, 4)
-    add(speedField, 1, 4)
+    add(new Label("Collisions:"), 0, 4)
+    add(collisionField, 1, 4)
 
-    add(new Label("Collisions:"), 0, 5)
-    add(collisionField, 1, 5)
-
-    add(new Label("Integrator:") {graphic = Icons.get("formula")}, 0, 6)
-    add(integratorField, 1, 6)
+    add(new Label("Integrator:") {graphic = Icons.get("formula")}, 0, 5)
+    add(integratorField, 1, 5)

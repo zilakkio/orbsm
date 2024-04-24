@@ -1,6 +1,6 @@
 {
   "fps": 120,
-  "tpf": 10,
+  "timestep": 60,
   "speed": 1,
   "stopped": false,
   "space": {

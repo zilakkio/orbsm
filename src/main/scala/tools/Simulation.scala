@@ -5,7 +5,7 @@ import gui.AlertManager
 import scalafx.scene.canvas.Canvas
 import scalafx.scene.paint.Color.Black
 import tools.Centering.AtBody
-import tools.CollisionMode.{Disabled, Elastic, Merge}
+import tools.CollisionMode.{Disabled, Inelastic, Merge}
 import tools.Integrator.SemiImplicitEuler
 
 import scala.collection.mutable.Buffer
@@ -23,8 +23,10 @@ class Simulation:
   var reversed: Boolean = false
   var space: SimulationSpace = SimulationSpace()
 
+  val startupTime = System.currentTimeMillis()
+
   var safeTimeStep = 60.0
-  var collisionMode: CollisionMode = Elastic
+  var collisionMode: CollisionMode = Merge
   var integrator: Integrator = SemiImplicitEuler
 
   var workingFile: String = ""  
@@ -100,6 +102,15 @@ class Simulation:
     if targetZoom >= 2.0e8 then targetZoom = 2.0e8
 
   def resetZoom() = setZoom(1.0)
+  
+  def pixelToPosition(pixelX: Double, pixelY: Double) =
+      (Vector3D(pixelX - canvas.width.value / 2, pixelY - canvas.height.value / 2) + pixelOffset) * metersPerPixel
+
+  def vPixelToPosition(pixel: Vector3D): Vector3D =
+    pixelToPosition(pixel.x, pixel.y)
+
+  def positionToPixel(position: Vector3D) =
+      (Vector3D(position.x / metersPerPixel + canvas.width.value / 2, position.y / metersPerPixel + canvas.height.value / 2)) - pixelOffset
 
   def cameraVelocity: Vector3D = centering match
     case AtBody(body) => body.velocity
@@ -112,8 +123,12 @@ class Simulation:
   def timestep = 86400.0 * speed / (tpf * getAverageFPS)
 
   def tick(deltaTime: Double) =
-    if fpsRecords.length >= 20 then
+    if targetSpeed < 1/86400.0 then targetSpeed = 1/86400.0
+    if speed < 1/86400.0 then speed = 1/86400.0
+
+    if System.currentTimeMillis() - startupTime > 1000 then
       tpf *= timestep / safeTimeStep
+
     if getAverageFPS > fps && tpf >= 1 then  // high fps
       tpf *= 1.01
 

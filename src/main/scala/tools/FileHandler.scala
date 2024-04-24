@@ -34,7 +34,7 @@ implicit val colorRW: ReadWriter[Color] = readwriter[ujson.Value].bimap[Color](
     val red = Integer.parseInt(hex.substring(0, 2), 16)
     val green = Integer.parseInt(hex.substring(2, 4), 16)
     val blue = Integer.parseInt(hex.substring(4, 6), 16)
-    Color.rgb(red, green, blue)
+    Color.rgb(math.max(0, red), math.max(0, green), math.max(0, blue))
   }
 )
 
@@ -79,8 +79,8 @@ implicit val spaceRW: ReadWriter[SimulationSpace] = readwriter[ujson.Value].bima
 implicit val simulationRW: ReadWriter[Simulation] = readwriter[ujson.Value].bimap[Simulation](
   sim => ujson.Obj(
     "fps" -> sim.fps,
-    "tpf" -> sim.tpf,
-    "speed" -> sim.speed,
+    "timestep" -> sim.safeTimeStep,
+    "speed" -> sim.targetSpeed,
     "stopped" -> sim.stopped,
     "space" -> writeJs(sim.space)(spaceRW)
   ),
@@ -89,11 +89,10 @@ implicit val simulationRW: ReadWriter[Simulation] = readwriter[ujson.Value].bima
     val sim = Simulation()
 
     sim.fps = obj("fps").num.toInt
-    sim.tpf = obj("tpf").num.toInt
-    sim.speed = obj("speed").num.toInt
+    sim.safeTimeStep = obj("timestep").num
+    sim.targetSpeed = obj("speed").num.toInt
     sim.stopped = obj("stopped").bool
     sim.space = read[SimulationSpace](obj("space"))(spaceRW)
-
     sim
   }
 )

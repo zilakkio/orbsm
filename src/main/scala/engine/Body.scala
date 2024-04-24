@@ -54,11 +54,7 @@ class Body(var position: Vector3D, var name: String = "Body"):   // m
   
   def pathCurvatureRadius = velocity.norm * velocity.norm / acceleration.norm
   
-  override def toString: String = name
-/*
   override def toString: String = f"\n\n$name\n" +
     f"r = [ ${positionAU.x}%.3f ${positionAU.y}%.3f ${positionAU.z}%.3f ] AU\n" +
     f"v = [ ${velocity.x}%.1f ${velocity.y}%.1f ${velocity.z}%.1f ] m/s\n" +
-    f"a = [ ${acceleration.x * 1000}%.5f ${acceleration.y * 1000}%.5f ${acceleration.z * 1000}%.5f ] mm/s/s\n" +
-    f"mass = ${massEarths}%.5f earths\n" +
-    f"radius = ${radiusEarths}%.3f earth"*/
+    f"a = [ ${acceleration.x * 1000}%.5f ${acceleration.y * 1000}%.5f ${acceleration.z * 1000}%.5f ] mm/s/s\n"

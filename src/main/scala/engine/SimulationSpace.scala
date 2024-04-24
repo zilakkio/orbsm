@@ -150,7 +150,7 @@ class SimulationSpace:
       body1 <- bodies
       body2 <- bodies.filter(_ != body1)
     do
-      if (body1.position - body2.position).norm <= (body1.radius + body2.radius) then
+      if (body1.position - body2.position).norm < (body1.radius + body2.radius) then
         mode match
           case CollisionMode.Merge =>
             if body1.mass >= body2.mass then
@@ -159,9 +159,6 @@ class SimulationSpace:
             else
               body2.mass += body1.mass
               filtered = bodies.filter(_ != body1)
-          case CollisionMode.Elastic =>
-            body1.velocity = ((body1.mass - body2.mass) * body1.velocity + body2.velocity * 2 * body2.mass) / (body1.mass + body2.mass)
-            body2.velocity = ((body2.mass - body1.mass) * body2.velocity + body1.velocity * 2 * body1.mass) / (body1.mass + body2.mass)
           case CollisionMode.Inelastic =>
             val v = (body1.mass * body1.velocity + body2.mass * body2.velocity) / (body1.mass + body2.mass)
             body1.velocity = v

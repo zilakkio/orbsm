@@ -1,9 +1,10 @@
 package gui
 import scalafx.collections.ObservableBuffer
-import scalafx.geometry.Insets
-import scalafx.scene.control.{Button, Label, Separator, ToggleButton, ToggleGroup, ToolBar}
+import scalafx.geometry.{Insets, Point2D}
+import scalafx.scene.control.{Button, Label, Separator, ToggleButton, ToggleGroup, ToolBar, Tooltip}
+import scalafx.util.Duration
 import tools.MultiSelectMode.{Closest2D, Closest3D, Heaviest, Largest}
-import tools.{Settings, Tool}
+import tools.{MultiSelectMode, Settings, Tool}
 
 class MainToolBar extends ToolBar:
 
@@ -11,18 +12,25 @@ class MainToolBar extends ToolBar:
 
   val toolSelector = ToggleGroup()
 
+  def barTooltip(text: String) = new Tooltip(text) {
+    showDelay = Duration(600)
+  }
+
   val nothingSelector = new ToggleButton():
+    tooltip = barTooltip("Pan and zoom")
     graphic = Icons.get("drag-move")
     toggleGroup = toolSelector
     selected = true
     onAction = (event) => Settings.tool = Tool.Nothing
 
   val freeBodySelector = new ToggleButton():
+    tooltip = barTooltip("Add a free body")
     graphic = Icons.get("circle")
     toggleGroup = toolSelector
     onAction = (event) => Settings.tool = Tool.FreeBody
 
   val autoOrbitSelector = new ToggleButton():
+    tooltip = barTooltip("Add a body with a round orbit")
     graphic = Icons.get("focus")
     toggleGroup = toolSelector
     onAction = (event) => Settings.tool = Tool.AutoOrbit
@@ -30,6 +38,7 @@ class MainToolBar extends ToolBar:
   val multiSelector = new ToggleGroup()
 
   val closest2DSelector = new ToggleButton():
+    tooltip = barTooltip("Prioritize selection by distance")
     graphic = Icons.get("distance")
     toggleGroup = multiSelector
     selected = true
@@ -40,11 +49,13 @@ class MainToolBar extends ToolBar:
     onAction = (event) => Settings.multiSelectMode = Closest3D*/
 
   val heaviestSelector = new ToggleButton():
+    tooltip = barTooltip("Prioritize selection by mass")
     graphic = Icons.get("weight")
     toggleGroup = multiSelector
     onAction = (event) => Settings.multiSelectMode = Heaviest
 
   val largestSelector = new ToggleButton():
+    tooltip = barTooltip("Prioritize selection by radius")
     graphic = Icons.get("radius")
     toggleGroup = multiSelector
     onAction = (event) => Settings.multiSelectMode = Largest
@@ -58,6 +69,7 @@ class MainToolBar extends ToolBar:
     visible = false
 
   val vectorVelocityToggle = new ToggleButton():
+    tooltip = barTooltip("Velocity vectors (green)")
     graphic = Icons.get("v")
     selected = Settings.showVelocityVectors
     onAction = (event =>
@@ -65,6 +77,7 @@ class MainToolBar extends ToolBar:
     )
 
   val vectorAccelerationToggle = new ToggleButton():
+    tooltip = barTooltip("Acceleration vectors (magenta)")
     graphic = Icons.get("a")
     selected = Settings.showAccelerationVectors
     onAction = (event =>
@@ -72,6 +85,7 @@ class MainToolBar extends ToolBar:
     )
 
   val trailToggle = new ToggleButton():
+    tooltip = barTooltip("Trails/orbits")
     graphic = Icons.get("orbit")
     selected = Settings.showTrails
     onAction = (event =>
@@ -79,6 +93,7 @@ class MainToolBar extends ToolBar:
     )
 
   val gridToggle = new ToggleButton():
+    tooltip = barTooltip("Grid and scale")
     graphic = Icons.get("grid")
     selected = Settings.showGrid
     onAction = (event =>
@@ -86,6 +101,7 @@ class MainToolBar extends ToolBar:
     )
 
   val infoToggle = new ToggleButton():
+    tooltip = barTooltip("Information")
     graphic = Icons.get("info")
     selected = Settings.showInfo
     onAction = (event =>
@@ -99,6 +115,11 @@ class MainToolBar extends ToolBar:
   
   def update() =
     Settings.tool match
-        case Tool.Nothing => nothingSelector.selected = true
-        case Tool.FreeBody => freeBodySelector.selected = true
-        case Tool.AutoOrbit => autoOrbitSelector.selected = true
+      case Tool.Nothing => nothingSelector.selected = true
+      case Tool.FreeBody => freeBodySelector.selected = true
+      case Tool.AutoOrbit => autoOrbitSelector.selected = true
+    Settings.multiSelectMode match
+      case MultiSelectMode.Heaviest => heaviestSelector.selected = true
+      case MultiSelectMode.Largest => largestSelector.selected = true
+      case MultiSelectMode.Closest2D => closest2DSelector.selected = true
+      case _ => ()

@@ -6,7 +6,7 @@ import scalafx.scene.layout.{ColumnConstraints, GridPane, HBox, VBox}
 import engine.*
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.text.Font
-import tools.Settings
+import tools.{Settings, Simulation}
 
 class BodyPanel(val body: Body) extends GridPane:
 
@@ -24,23 +24,51 @@ class BodyPanel(val body: Body) extends GridPane:
 
   val massField = new TextField:
     text = (body.mass / Settings.earthMass).toString
-    focused.onChange((_, _, _) =>
+
+    def updateMass() =
       try
+        assert(text().toDouble > 0)
         body.mass = text().toDouble * Settings.earthMass
-      catch case _ => AlertManager.alert(f"\"${text.value}\" is not a valid mass")
+      catch case _ => AlertManager.alert(f"\"${text.value}\" is not a valid mass"); text = body.massEarths.toString
+
+    focused.onChange((_, _, _) =>
+      updateMass()
     )
+    onKeyReleased = (event) =>
+      if event.getCode.toString == "ENTER" then updateMass()
 
   val radiusField = new TextField:
     text = (body.radius / Settings.earthRadius).toString
-    focused.onChange((_, _, _) =>
+    def updateRadius() =
       try
+        assert(text().toDouble >= 0)
         body.radius = text().toDouble * Settings.earthRadius
-      catch case _ => AlertManager.alert(f"\"${text.value}\" is not a valid radius")
+      catch case _ =>
+        AlertManager.alert(f"\"${text.value}\" is not a valid radius")
+        text = body.radiusEarths.toString
+    focused.onChange((_, _, _) =>
+      updateRadius()
     )
+    onKeyReleased = (event) =>
+      if event.getCode.toString == "ENTER" then updateRadius()
+
 
   val velocityField = new TextField:
     text = body.velocity.norm.toString
     disable = true
+    def updateSpeed() =
+      try
+        assert(text().toDouble >= 0)
+        if body.velocity.norm != 0 then
+          body.velocity *= text().toDouble / body.velocity.norm
+        else
+          AlertManager.alert("Direction is undefined")
+      catch case _ => AlertManager.alert(f"\"${text.value}\" is not a valid speed"); text = body.velocity.norm.toString
+    focused.onChange((_, _, _) =>
+      updateSpeed()
+    )
+    onKeyReleased = (event) =>
+      if event.getCode.toString == "ENTER" then updateSpeed()
 
   val velocityButtonInv = new Button:
     padding = Insets(5, 5, 5, 5)
@@ -75,7 +103,16 @@ class BodyPanel(val body: Body) extends GridPane:
       body.color = jfxColor2sfx(newValue)
     )
 
-  def update() =
+  def update(sim: Simulation) =
+    if sim.stopped then
+      velocityField.disable = false
+    else
+      velocityField.disable = true
+      velocityField.text = body.velocity.norm.toString
+
+  def fullUpdate() =
+    massField.text = body.massEarths.toString
+    radiusField.text = body.radiusEarths.toString
     velocityField.text = body.velocity.norm.toString
 
   this.hgap = 10

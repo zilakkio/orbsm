@@ -19,6 +19,8 @@ case class Vector3D(val x: Double, val y: Double, val z: Double = 0):
 
   def dot(other: Vector3D): Double = x * other.x + y * other.y + z * other.z
 
+  def cross(other: Vector3D): Vector3D = Vector3D(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x)
+
   def norm: Double = sqrt((x * x) + (y * y) + (z * z))
 
   def orthogonal: Vector3D = Vector3D(-y, x, z)

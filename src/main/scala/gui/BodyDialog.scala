@@ -65,8 +65,18 @@ class BodyDialog(
     if dialogButton == createButtonType then
       body.position = Vector3D(xPosField.text.value.toDoubleOption.getOrElse(0.0), yPosField.text.value.toDoubleOption.getOrElse(0.0), zPosField.text.value.toDoubleOption.getOrElse(0.0)) * Settings.metersPerAU
       body.velocity = Vector3D(xVelField.text.value.toDoubleOption.getOrElse(0.0), yVelField.text.value.toDoubleOption.getOrElse(0.0), zVelField.text.value.toDoubleOption.getOrElse(0.0))
-      body.mass = massField.text.value.toDoubleOption.getOrElse(1.0) * Settings.earthMass
-      body.radius = radiusField.text.value.toDoubleOption.getOrElse(1.0) * Settings.earthRadius
+      try
+        assert(massField.text.value.toDouble > 0)
+        body.mass = massField.text.value.toDouble * Settings.earthMass
+      catch
+        case _ => AlertManager.alert(f"\"${massField.text.value}\" is not a valid mass")
+      try
+        assert(radiusField.text.value.toDouble > 0)
+        body.radius = radiusField.text.value.toDouble * Settings.earthRadius
+      catch
+        case _ =>
+          AlertManager.alert(f"\"${radiusField.text.value}\" is not a valid radius")
+
       Some(true)
     else None
 
