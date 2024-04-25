@@ -66,18 +66,21 @@ implicit val bodyRW: ReadWriter[Body] = readwriter[ujson.Value].bimap[Body](
 implicit val spaceRW: ReadWriter[SimulationSpace] = readwriter[ujson.Value].bimap[SimulationSpace](
   space => ujson.Obj(
     "bodies" -> ujson.Arr(space.bodies.map(body => writeJs(body)(bodyRW)).toArray: _*),
+    "drag" -> space.drag.k
   ),
   json => {
     val space = SimulationSpace()
     val arr = json.obj("bodies").arr
     for body <- arr do
       space.addBody(read[Body](body)(bodyRW))
+    space.drag.k = json.obj("drag").num
     space
   }
 )
   
 implicit val simulationRW: ReadWriter[Simulation] = readwriter[ujson.Value].bimap[Simulation](
   sim => ujson.Obj(
+    "name" -> sim.name,
     "fps" -> sim.fps,
     "timestep" -> sim.safeTimeStep,
     "speed" -> sim.targetSpeed,
@@ -93,6 +96,7 @@ implicit val simulationRW: ReadWriter[Simulation] = readwriter[ujson.Value].bima
     sim.targetSpeed = obj("speed").num.toInt
     sim.stopped = obj("stopped").bool
     sim.space = read[SimulationSpace](obj("space"))(spaceRW)
+    sim.name = obj("name").str
     sim
   }
 )

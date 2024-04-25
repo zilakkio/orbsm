@@ -30,7 +30,7 @@ class MainToolBar extends ToolBar:
     onAction = (event) => Settings.tool = Tool.FreeBody
 
   val autoOrbitSelector = new ToggleButton():
-    tooltip = barTooltip("Add a body with a round orbit")
+    tooltip = barTooltip("Add a body with an auto orbit")
     graphic = Icons.get("focus")
     toggleGroup = toolSelector
     onAction = (event) => Settings.tool = Tool.AutoOrbit

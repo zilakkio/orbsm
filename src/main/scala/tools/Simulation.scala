@@ -1,11 +1,9 @@
 package tools
 
 import engine.{Body, SimulationSpace, Vector3D}
-import gui.AlertManager
 import scalafx.scene.canvas.Canvas
-import scalafx.scene.paint.Color.Black
 import tools.Centering.AtBody
-import tools.CollisionMode.{Disabled, Inelastic, Merge}
+import tools.CollisionMode.Merge
 import tools.Integrator.SemiImplicitEuler
 
 import scala.collection.mutable.Buffer

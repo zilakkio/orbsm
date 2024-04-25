@@ -1,9 +1,9 @@
 import tools.Centering.{AtBody, MassCenter}
 import tools.Tool.*
-import engine.{Body, GravitationalForce, Orbit, Vector3D}
+import engine.{Body, Orbit, Vector3D}
 import gui.{AlertManager, BodyDialog, BodyPanel, Icons, MainToolBar, SimPanel}
 import scalafx.animation.AnimationTimer
-import scalafx.application.{JFXApp3, Platform}
+import scalafx.application.JFXApp3
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
@@ -13,10 +13,9 @@ import scalafx.scene.paint.Color.*
 import scalafx.scene.control.*
 import scalafx.scene.control.ScrollPane.ScrollBarPolicy
 import scalafx.scene.paint.Color
-import scalafx.scene.text.{Font, TextAlignment}
+import scalafx.scene.text.TextAlignment
 import scalafx.Includes.jfxColor2sfx
-import scalafx.scene.transform.{Rotate, Translate}
-import scalafx.stage.{FileChooser, Stage, StageStyle}
+import scalafx.stage.{FileChooser, Stage}
 import scalafx.stage.FileChooser.ExtensionFilter
 import tools.{Centering, Simulation, Tool}
 import tools.*
@@ -25,7 +24,6 @@ import tools.MultiSelectMode.{Closest2D, Closest3D, Heaviest, Largest}
 import java.nio.file.{Path, Paths}
 import scala.collection.mutable.Buffer
 import scala.language.postfixOps
-import scala.math.{cos, sin, sqrt}
 
 
 object GUI extends JFXApp3:
@@ -35,11 +33,12 @@ object GUI extends JFXApp3:
     val currentDir: Path = Paths.get("").toAbsolutePath
     val defaultFile: Path = currentDir.resolve("solarsystem.json")
 
-
     var sim = Simulation()
     val tabSimulations: Buffer[Simulation] = Buffer()
 
     var bodyPanel: Option[BodyPanel] = None
+
+    var copiedBody: Option[Body] = None
 
     var cursorPixelPosition: Vector3D = Vector3D(0.0, 0.0)
     var cursorDragEnterPixelPosition: Option[Vector3D] = None
@@ -56,9 +55,14 @@ object GUI extends JFXApp3:
         minBound.x < pos.x && pos.x < maxBound.x && minBound.y < pos.y && pos.y < maxBound.y
       ).toArray
 
+    def bodiesNotEscaped: Array[Body] =
+      sim.space.bodies.filter(b =>
+        !sim.space.hasEscaped(b)
+      ).toArray
+
     def fitZoom() =
       if sim.space.bodies.length >= 2 then
-        val halfHeightZoomedAU = sim.space.bodies.map(body => (body.position - sim.centeringPosition).norm).max / Settings.metersPerAU
+        val halfHeightZoomedAU = bodiesNotEscaped.map(body => (body.position - sim.centeringPosition).norm).max / Settings.metersPerAU
         val halfHeightAU = sim.canvas.height.value / 200
         sim.setZoom(halfHeightAU / halfHeightZoomedAU)
       else sim.setZoom(1.0)
@@ -88,6 +92,29 @@ object GUI extends JFXApp3:
 
     def moveCamera() =
       sim.centering = Centering.Custom(sim.cursorPosition)
+
+    def editSelection() =
+      sim.selectedBody match
+        case Some(selection) =>
+          sim.pause()
+          BodyDialog(stage, selection).showAndWait()
+          bodyPanel.get.fullUpdate()
+          sim.play()
+        case None => ()
+
+    def copySelection() =
+      if sim.selectedBody.isDefined then
+        copiedBody = Some(sim.selectedBody.get.copy())
+
+    def cutSelection() =
+      copySelection()
+      sim.deleteSelection()
+
+    def paste() =
+      if copiedBody.isDefined then
+        val pos = sim.vPixelToPosition(cursorPixelPosition)
+        copiedBody.get.position = pos
+        sim.space.addBody(copiedBody.get.copy())
 
     def saveAs() =
       val filechooser = new FileChooser:
@@ -152,10 +179,11 @@ object GUI extends JFXApp3:
 
     tabPane.tabs = tabSimulations.map(simToTab(_)).toSeq
 
-    def selectBody(body: Body) =
+     def selectBody(body: Body) =
       sim.select(body)
-      bodyPanel = Some(BodyPanel(body))
-      bodyPanelContainer.children = bodyPanel
+
+    def deselectBody() =
+      sim.deselect()
 
     def initCanvas(): Canvas =
       var canvas1 = new Canvas():
@@ -178,6 +206,8 @@ object GUI extends JFXApp3:
                 body.radius = Settings.earthRadius
                 Settings.tool = Tool.Nothing
                 sim.space.addBody(body)
+                ctrlPressed = false
+                shiftPressed = false
                 if BodyDialog(stage, body).process(sim) then
                   selectBody(body)
 
@@ -190,6 +220,8 @@ object GUI extends JFXApp3:
                 body.velocity = selectedOrbit.get.velocity * (if shiftPressed then -1 else 1)
                 sim.space.addBody(body)
                 Settings.tool = Tool.Nothing
+                ctrlPressed = false
+                shiftPressed = false
                 if BodyDialog(stage, body).process(sim) then
                   selectBody(body)
                 else
@@ -199,13 +231,7 @@ object GUI extends JFXApp3:
                 if sim.selectableBody.isDefined then selectBody(sim.selectableBody.get)
 
             case "SECONDARY" =>
-              sim.selectableBody match
-                case Some(selection) =>
-                  sim.pause()
-                  BodyDialog(stage, selection).showAndWait()
-                  bodyPanel.get.fullUpdate()
-                  sim.play()
-                case None => ()
+              editSelection()
 
         onMouseMoved = (event) =>
           cursorPixelPosition = Vector3D(event.getX, event.getY)
@@ -246,10 +272,7 @@ object GUI extends JFXApp3:
       sim = newSim
       simPanelContainer.children = SimPanel(newSim)
 
-    def deselectBody() =
-      sim.deselect()
-      bodyPanel = None
-      bodyPanelContainer.children.clear()
+    val menuBar = new MenuBar()
 
     def save() =
       try
@@ -266,59 +289,77 @@ object GUI extends JFXApp3:
       if file != null then
         switchSim( FileHandler.load(file.toString) )
         sim.workingFile = file.toString
+        center()
 
-    val menuBar = new MenuBar:
+    val menuFile = new Menu("File"):
+      val itemNew = new MenuItem("New empty simulation"):
+        onAction = (event) =>
+          switchSim(Simulation())
 
-        val menuFile = new Menu("File"):
-          val itemNew = new MenuItem("New empty simulation"):
-            onAction = (event) =>
-              switchSim(Simulation())
+      val itemSave = new MenuItem("Save"):
+        onAction = (event) =>
+          save()
+      val itemSaveAs = new MenuItem("Save as..."):
+        onAction = (event) =>
+          saveAs()
+      val itemOpen = new MenuItem("Open..."):
+        onAction = (event) =>
+          load()
+      items = List(itemNew, itemSave, itemSaveAs, itemOpen)
 
-          val itemSave = new MenuItem("Save"):
-            onAction = (event) =>
-              save()
-          val itemSaveAs = new MenuItem("Save as..."):
-            onAction = (event) =>
-              saveAs()
-          val itemOpen = new MenuItem("Open..."):
-            onAction = (event) =>
-              load()
-          items = List(itemNew, itemSave, itemSaveAs, itemOpen)
+    val menuSim = new Menu("Simulation"):
+      val itemStart = new MenuItem("Start/Stop \t\t\t Ctrl+SPACE"):
+        onAction = (event) =>
+          sim.stopped = !sim.stopped
+      val itemReverse = new MenuItem("Reverse time \t\t Ctrl+SPACE"):
+        onAction = (event) =>
+          sim.reversed = !sim.reversed
+      val itemSpeedUp = new MenuItem("Speed x2 \t\t\t Ctrl+RIGHT"):
+        onAction = (event) =>
+          sim.setSpeed(sim.speed * 2)
+      val itemSlowDown = new MenuItem("Speed x0.5 \t\t\t Ctrl+LEFT"):
+        onAction = (event) =>
+          sim.setSpeed(sim.speed / 2)
+      items = List(itemStart, itemReverse, itemSpeedUp, itemSlowDown)
 
-        val menuSim = new Menu("Simulation"):
-          val itemStart = new MenuItem("Start/Stop \t\t\t Ctrl+SPACE"):
-            onAction = (event) =>
-              sim.stopped = !sim.stopped
-          val itemReverse = new MenuItem("Reverse time \t\t Ctrl+SPACE"):
-            onAction = (event) =>
-              sim.reversed = !sim.reversed
-          val itemSpeedUp = new MenuItem("Speed x2 \t\t\t Ctrl+RIGHT"):
-            onAction = (event) =>
-              sim.setSpeed(sim.speed * 2)
-          val itemSlowDown = new MenuItem("Speed x0.5 \t\t\t Ctrl+LEFT"):
-            onAction = (event) =>
-              sim.setSpeed(sim.speed / 2)
-          items = List(itemStart, itemReverse, itemSpeedUp, itemSlowDown)
+    val menuView = new Menu("View"):
+      val itemCenter = new MenuItem("Center \t\t\t Ctrl+G"):
+        onAction = (event) =>
+          center()
+      val itemFocus = new MenuItem("Focus \t\t\t Ctrl+F"):
+        onAction = (event) =>
+          focus()
+      val itemResetZoom = new MenuItem("Reset zoom \t\t Ctrl+R"):
+        onAction = (event) =>
+          sim.setZoom(1.0)
+      val itemZoomIn = new MenuItem("Zoom in \t\t\t Ctrl +"):
+        onAction = (event) =>
+          sim.setZoom(2 * sim.targetZoom)
+      val itemZoomOut = new MenuItem("Zoom out \t\t Ctrl -"):
+        onAction = (event) =>
+          sim.setZoom(0.5 * sim.targetZoom)
+      val itemFullScreen = new MenuItem("Toggle fullscreen  F11"):
+        onAction = (event) =>
+          stage.fullScreen = !stage.isFullScreen
 
-        val menuView = new Menu("View"):
-          val itemCenter = new MenuItem("Center \t\t\t Ctrl+G"):
-            onAction = (event) =>
-              center()
-          val itemFocus = new MenuItem("Focus \t\t\t Ctrl+F"):
-            onAction = (event) =>
-              focus()
-          val itemResetZoom = new MenuItem("Reset zoom \t\t Ctrl+R"):
-            onAction = (event) =>
-              sim.setZoom(1.0)
-          val itemZoomIn = new MenuItem("Zoom in \t\t\t Ctrl +"):
-            onAction = (event) =>
-              sim.setZoom(2 * sim.targetZoom)
-          val itemZoomOut = new MenuItem("Zoom out \t\t Ctrl -"):
-            onAction = (event) =>
-              sim.setZoom(0.5 * sim.targetZoom)
-          items = List(itemCenter, itemFocus, itemResetZoom, itemZoomIn, itemZoomOut)
+      items = List(itemCenter, itemFocus, itemResetZoom, itemZoomIn, itemZoomOut, itemFullScreen)
 
-        menus = List(menuFile, menuSim, menuView)
+    val menuBody = new Menu("Body"):
+      val itemEdit = new MenuItem("Edit \t\t\t RMB"):
+        onAction = (event) =>
+          editSelection()
+      val itemDelete = new MenuItem("Delete \t\t Ctrl + BACKSPACE"):
+        onAction = (event) =>
+          sim.deleteSelection()
+      val itemCopy = new MenuItem("Copy \t\t Ctrl + C"):
+        onAction = (event) =>
+          copySelection()
+      val itemCut = new MenuItem("Cut \t\t\t Ctrl + X"):
+        onAction = (event) =>
+          cutSelection()
+      items = List(itemEdit, itemDelete, itemCopy, itemCut)
+
+    menuBar.menus = List(menuFile, menuSim, menuView)
 
     sim.canvas = initCanvas()
 
@@ -447,7 +488,16 @@ object GUI extends JFXApp3:
         case "MINUS" if ctrlPressed => sim.setZoom(0.5 * sim.targetZoom)                                                  // zoom 0.5x
 
         case "G" if ctrlPressed => center()                                                                   // center at mass center
-        case "V" if ctrlPressed => moveCamera()                                                               // center at cursor position
+        case "V" if ctrlPressed => paste()                                                               // center at cursor position
+        case "X" if ctrlPressed => cutSelection()
+        case "C" if ctrlPressed => copySelection()
+        case "D" if ctrlPressed => moveCamera()
+
+        case "S" if ctrlPressed && shiftPressed => saveAs()
+        case "S" if ctrlPressed => save()
+        case "N" if ctrlPressed => switchSim(Simulation())
+        case "O" if ctrlPressed => load()
+
         case "F" if sim.selectedBody.isDefined && ctrlPressed => focus()                                      // center at selection
         case "BACK_SPACE" if sim.selectedBody.isDefined && ctrlPressed => sim.deleteSelection()               // remove selection
 
@@ -513,13 +563,10 @@ object GUI extends JFXApp3:
       val correction = ((sim.cameraVelocity + sim.cameraAcceleration * simDT / 2) * (oldZoom / sim.zoom) * (sim.speed) *
         simDT * 86400 * (if sim.stopped then 0 else 1)) / sim.metersPerPixel
       sim.pixelOffset /= (oldZoom / sim.zoom)                                      // fixed: zoom display bug
-      sim.pixelOffset += correction                                                // fixed: moving camera offset bug
       sim.pixelOffset += (sim.targetPixelOffset - sim.pixelOffset) * 0.05          // camera position animation
-
-
+      sim.pixelOffset += correction                                                // fixed: moving camera offset bug
 
       // draw grid
-
       simGC.stroke = Color.rgb(30, 30, 30)
       simGC.lineWidth = 1
       val w = sim.canvas.width.value
@@ -614,7 +661,6 @@ object GUI extends JFXApp3:
           simGC.lineTo(pos.x, pos.y)
           simGC.stroke()
       )
-
 
       // draw bodies and vectors
       sim.selectableBody = None
@@ -725,7 +771,11 @@ object GUI extends JFXApp3:
 
       if sim.selectedBody.isEmpty then
         bodyPanel = None
+        if menuBar.menus.length == 4 then
+          menuBar.menus = List(menuFile, menuSim, menuView)
         bodyPanelContainer.children = List()
+      if sim.selectedBody.isDefined && menuBar.menus.length == 3 then
+        menuBar.menus = List(menuFile, menuSim, menuView, menuBody)
       if sim.selectedBody.isDefined && bodyPanelContainer.children.isEmpty then
         bodyPanel = Some(BodyPanel(sim.selectedBody.get))
         bodyPanelContainer.children = List(bodyPanel.get)
@@ -774,9 +824,11 @@ object GUI extends JFXApp3:
           simGC.textAlign = TextAlignment.Left
 
         if sim.selectedBody.isDefined then
+          simGC.fill = White
           simGC.fillText(f"\n${sim.selectedBody.get}", 20, 30)
 
         if selectedOrbit.isDefined then
+          simGC.fill = White
           simGC.fillText(f"\n\n\n\n\n\n\n\n\n${selectedOrbit.get}", 20, 30)
 
         simGC.font = Settings.fontMain

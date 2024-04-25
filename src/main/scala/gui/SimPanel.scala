@@ -8,8 +8,8 @@ import engine.*
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.text.Font
-import tools.CollisionMode.{Disabled, Inelastic, Merge}
-import tools.Integrator.{ExplicitEuler, RK2, RK4, Random, SemiImplicitEuler, Verlet}
+import tools.CollisionMode.{Disabled, Merge}
+import tools.Integrator.{ExplicitEuler, RK2, RK4, SemiImplicitEuler, Verlet}
 
 class SimPanel(val sim: Simulation) extends GridPane:
 
@@ -57,10 +57,26 @@ class SimPanel(val sim: Simulation) extends GridPane:
       onKeyReleased = (event) =>
         if event.getCode.toString == "ENTER" then updateTimestep()
 
+    val dragField = new TextField:
+      text = sim.space.drag.k.toString
+      def updateDrag() =
+        try
+          assert(text().toDouble >= 0)
+          sim.space.drag.k = text().toDouble
+        catch
+          case _ =>
+            AlertManager.alert("Drag coefficient should be a non-negative number")
+            text = sim.space.drag.k.toString
+      focused.onChange((_, _, _) =>
+        updateDrag()
+      )
+      onKeyReleased = (event) =>
+        if event.getCode.toString == "ENTER" then updateDrag()
+
     val collisionField = new ChoiceBox[CollisionMode]:
       prefWidth = 150
       value = sim.collisionMode
-      items = ObservableBuffer(Merge, Inelastic, Disabled)
+      items = ObservableBuffer(Merge, Disabled)
 
       onAction = (event =>
         sim.collisionMode = value.value
@@ -69,7 +85,7 @@ class SimPanel(val sim: Simulation) extends GridPane:
     val integratorField = new ChoiceBox[Integrator]:
       prefWidth = 150
       value = sim.integrator
-      items = ObservableBuffer(ExplicitEuler, SemiImplicitEuler, Verlet, RK2, RK4, Random)
+      items = ObservableBuffer(ExplicitEuler, SemiImplicitEuler, Verlet, RK2, RK4)
 
       onAction = (event =>
         sim.integrator = value.value
@@ -97,8 +113,11 @@ class SimPanel(val sim: Simulation) extends GridPane:
     add(new Label("Safe timestep, s:") {graphic = Icons.get("time")}, 0, 3)
     add(timestepField, 1, 3)
 
-    add(new Label("Collisions:"), 0, 4)
-    add(collisionField, 1, 4)
+    add(new Label("Drag:"), 0, 4)
+    add(dragField, 1, 4)
 
-    add(new Label("Integrator:") {graphic = Icons.get("formula")}, 0, 5)
-    add(integratorField, 1, 5)
+    add(new Label("Collisions:"), 0, 5)
+    add(collisionField, 1, 5)
+
+    add(new Label("Integrator:") {graphic = Icons.get("formula")}, 0, 6)
+    add(integratorField, 1, 6)

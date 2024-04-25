@@ -46,7 +46,8 @@ object Settings:
 
   def ctrlHelp(sim: Simulation) =
     val bodySpecific = if sim.selectedBody.isDefined then
-      f"Delete ${sim.selectedBody.get.name}  [BACKSPACE]\nFocus at ${sim.selectedBody.get.name}          [F]\n"
+      val name = sim.selectedBody.get.name
+      f"Delete $name  [BACKSPACE]\nFocus at $name          [F]\nCopy $name          [C]\nCut $name          [X]"
     else ""
     f"""
 Ctrl + ...
@@ -54,7 +55,7 @@ Ctrl + ...
 $bodySpecific
 Start/Stop      [SPACE]
 Free body tool          [Q]
-AutoOrbit tool          [A]
+Auto orbit tool          [A]
 Pan and zoom tool          [Z]
 Speed x0.5  [LEFTARROW]
 Speed x2 [RIGHTARROW]
@@ -62,5 +63,11 @@ Reset zoom          [R]
 Zoom in          [+]
 Zoom out          [-]
 Center the view          [G]
-Center at the cursor          [V]
+Center at the cursor          [D]
+Paste          [V]
+
+Save          [S]
+Save as...    [Shift+S]
+New simulation          [N]
+Open...          [O]
 """

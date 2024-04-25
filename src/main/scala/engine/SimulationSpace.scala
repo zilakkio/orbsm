@@ -1,6 +1,6 @@
 package engine
 
-import tools.Integrator.{ExplicitEuler, RK2, RK4, Random, SemiImplicitEuler, Verlet}
+import tools.Integrator.{ExplicitEuler, RK2, RK4, SemiImplicitEuler, Verlet}
 import tools.{CollisionMode, Integrator, Settings}
 
 import scala.collection.mutable
@@ -13,7 +13,7 @@ import scala.language.postfixOps
 class SimulationSpace:
   var bodies = Buffer[Body]()
   var interactionForces = Vector[InteractionForce](GravitationalForce)
-  var environmentForces = Vector[EnvironmentForce]()
+  var drag = Drag(0.0)
 
   /** Add a celestial body to the space.
    * @param body A celestial body to be added.
@@ -53,19 +53,12 @@ class SimulationSpace:
   def calculateTotalForce(body: Body): Vector3D =
     var totalForce = Vector3D(0.0, 0.0)
 
-    // calculate all interaction forces
     interactionForces.foreach( force =>
       bodies.filter(_ != body).foreach( source =>
         totalForce += force.calculate(body, source)
       )
     )
-
-    // calculate all environment forces
-    environmentForces.foreach( force =>
-      totalForce += force.calculate(body)
-    )
-
-    // return the vector sum of all forces
+    totalForce += drag.calculate(body)
     totalForce
 
   /** Advance the simulation.
@@ -132,12 +125,6 @@ class SimulationSpace:
           body.velocity += (1/6.0) * (k1velocity + (2 * k2velocity) + (2 * k3velocity) + k4velocity)
           body.position += (1/6.0) * (k1position + (2 * k2position) + (2 * k3position) + k4position)
         )
-      case Random => bodies.foreach(body =>
-        body.position += body.velocity * deltaTime * (Settings.random.nextDouble() + 0.5)
-        body.velocity += body.acceleration * deltaTime * (Settings.random.nextDouble() + 0.5)
-        val totalForce = calculateTotalForce(body) // N
-        body.updateAcceleration(totalForce * (Settings.random.nextDouble() + 0.5))
-        )
     updateCollisions(collisionMode)
 
   /** Check for collisions between the bodies and handle them.
@@ -150,21 +137,27 @@ class SimulationSpace:
       body1 <- bodies
       body2 <- bodies.filter(_ != body1)
     do
-      if (body1.position - body2.position).norm < (body1.radius + body2.radius) then
+      if collided(body1, body2) then
         mode match
           case CollisionMode.Merge =>
             if body1.mass >= body2.mass then
               body1.mass += body2.mass
               filtered = bodies.filter(_ != body2)
-            else
-              body2.mass += body1.mass
-              filtered = bodies.filter(_ != body1)
-          case CollisionMode.Inelastic =>
-            val v = (body1.mass * body1.velocity + body2.mass * body2.velocity) / (body1.mass + body2.mass)
-            body1.velocity = v
-            body2.velocity = v
           case CollisionMode.Disabled => ()
     bodies = filtered
+
+  def collided(body1: Body, body2: Body): Boolean =
+    if (body1.position - body2.position).norm < (body1.radius + body2.radius) then
+      true
+    else if body2.positionHistory.length >= 2 then
+      val lastPosition = body2.positionHistory.last
+      val dPosition = body2.position - lastPosition
+      val t = ((body1.position.x - lastPosition.x) * dPosition.x + (body1.position.y - lastPosition.y) * dPosition.y) / (dPosition.norm * dPosition.norm)
+      val closestPoint = lastPosition + dPosition * math.max(0, math.min(1, t))
+      (closestPoint - body1.position).norm < body1.radius
+    else
+      false
+
 
   def massCenter: Vector3D =
     if bodies.isEmpty then
@@ -184,4 +177,4 @@ class SimulationSpace:
     (total dot attraction) / (total.norm * attraction.norm) * attraction.norm / total.norm
 
   def hasEscaped(body: Body): Boolean =
-    ((body.position - massCenter) dot body.velocity) < -0.02 && body.pathCurvatureRadius > 1e15
+    ((body.position - massCenter).unit dot body.velocity.unit) > 0.999 && body.pathCurvatureRadius > 1e17

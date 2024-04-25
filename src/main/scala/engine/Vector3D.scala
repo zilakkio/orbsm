@@ -5,6 +5,9 @@ import scala.math.sqrt
 
 case class Vector3D(val x: Double, val y: Double, val z: Double = 0):
 
+  @targetName("inv")
+  def unary_- = Vector3D(-x, -y, -z)
+
   @targetName("add")
   def +(other: Vector3D): Vector3D = Vector3D(other.x + x, other.y + y, other.z + z)
 
@@ -25,9 +28,8 @@ case class Vector3D(val x: Double, val y: Double, val z: Double = 0):
 
   def orthogonal: Vector3D = Vector3D(-y, x, z)
 
-  def unit: Vector3D = this / this.norm
-
-  def roundPlaces(places: Int) = Vector3D(x.roundPlaces(places), y.roundPlaces(places), z.roundPlaces(places))
+  def unit: Vector3D =
+    if this.norm == 0.0 then Vector3D(1.0, 0.0, 0.0) else this / this.norm
 
   def round = Vector3D(x.round, y.round, z.round)
 
@@ -38,7 +40,3 @@ case class Vector3D(val x: Double, val y: Double, val z: Double = 0):
 extension (scalar: Double)
   @targetName("mulr")
   def *(vector2D: Vector3D) = vector2D * scalar
-
-  def roundPlaces(places: Int) =
-    val k = math.pow(10, places)
-    (scalar * k).round / k
