@@ -1,5 +1,7 @@
 package tools
 
+/** Selection priority modes. When a cursor hits multiple objects' hitboxes, these modes prioritize the selection.
+     */
 enum MultiSelectMode:
   case Closest2D
   case Closest3D

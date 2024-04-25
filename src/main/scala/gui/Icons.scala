@@ -2,9 +2,10 @@ package gui
 
 import scalafx.scene.image.{Image, ImageView}
 
-
+/** Icon manager for the GUI
+     */
 object Icons:
-  val nameMap = Map(
+  private val nameMap = Map(
     "box-3" -> "box-3-line.png",
     "circle" -> "circle-line.png",
     "clipboard" -> "clipboard-line.png",
@@ -47,4 +48,8 @@ object Icons:
     "radius" -> "radius.png",
   )
 
-  def get(name: String): ImageView = new ImageView(Image(getClass.getResourceAsStream(s"/icons/${nameMap(name)}"))) {fitWidth = 24; fitHeight = 24}
+  /** Get the icon ImageView from name
+     */
+  def get(name: String): ImageView = new ImageView(Image(getClass.getResourceAsStream(s"/icons/${nameMap(name)}"))) {
+    fitWidth = 24; fitHeight = 24
+  }

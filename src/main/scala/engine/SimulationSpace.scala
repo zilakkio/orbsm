@@ -16,6 +16,7 @@ class SimulationSpace:
   var drag = Drag(0.0)
 
   /** Add a celestial body to the space.
+   *
    * @param body A celestial body to be added.
    * @return
    */
@@ -23,14 +24,17 @@ class SimulationSpace:
     bodies += body
 
   /** Add a celestial body to the space and set the velocity to create a round orbit.
-   * @param body A celestial body to be added.
+   *
+   * @param body   A celestial body to be added.
    * @param parent A celestial body to add an orbit around.
    * @return
    */
   def addAutoOrbit(body: Body, parent: Body, reverse: Boolean = false) =
     var v = Vector3D(0.0, 0.0)
     interactionForces.foreach(force =>
-      body.velocity += force.firstCosmicVelocity(body, parent) * {if reverse then -1 else 1}
+      body.velocity += force.firstCosmicVelocity(body, parent) * {
+        if reverse then -1 else 1
+      }
     )
     body.velocity += parent.velocity
     addBody(body)
@@ -47,14 +51,15 @@ class SimulationSpace:
     else false
 
   /** Calculate the total force applied to a body exerted by all other bodies.
+   *
    * @param body A celestial body for which the forces are calculated.
    * @return
    */
   def calculateTotalForce(body: Body): Vector3D =
     var totalForce = Vector3D(0.0, 0.0)
 
-    interactionForces.foreach( force =>
-      bodies.filter(_ != body).foreach( source =>
+    interactionForces.foreach(force =>
+      bodies.filter(_ != body).foreach(source =>
         totalForce += force.calculate(body, source)
       )
     )
@@ -62,6 +67,7 @@ class SimulationSpace:
     totalForce
 
   /** Advance the simulation.
+   *
    * @param deltaTime Simulation time step.
    * @return
    */
@@ -76,11 +82,11 @@ class SimulationSpace:
         )
       case SemiImplicitEuler =>
         bodies.foreach(body =>
-          body.updateAcceleration(calculateTotalForce(body))  // m/s^2
-          body.velocity += body.acceleration * deltaTime  // m/s
+          body.updateAcceleration(calculateTotalForce(body)) // m/s^2
+          body.velocity += body.acceleration * deltaTime // m/s
         )
         bodies.foreach(body =>
-          body.position += body.velocity * deltaTime  // m
+          body.position += body.velocity * deltaTime // m
         )
       case Verlet =>
         bodies.foreach(body =>
@@ -122,14 +128,12 @@ class SimulationSpace:
           val k3position = deltaTime * (body.velocity + 0.5 * k2velocity)
           val k4velocity = deltaTime * accelerationAt(body.position + k3position)
           val k4position = deltaTime * (body.velocity + k3velocity)
-          body.velocity += (1/6.0) * (k1velocity + (2 * k2velocity) + (2 * k3velocity) + k4velocity)
-          body.position += (1/6.0) * (k1position + (2 * k2position) + (2 * k3position) + k4position)
+          body.velocity += (1 / 6.0) * (k1velocity + (2 * k2velocity) + (2 * k3velocity) + k4velocity)
+          body.position += (1 / 6.0) * (k1position + (2 * k2position) + (2 * k3position) + k4position)
         )
     updateCollisions(collisionMode)
 
   /** Check for collisions between the bodies and handle them.
-   *
-   * @return
    */
   def updateCollisions(mode: CollisionMode) =
     var filtered = bodies
@@ -158,7 +162,8 @@ class SimulationSpace:
     else
       false
 
-
+  /** Find the mass center coordinates
+     */
   def massCenter: Vector3D =
     if bodies.isEmpty then
       return Vector3D(0.0, 0.0)
@@ -169,12 +174,16 @@ class SimulationSpace:
       center += body.mass * body.position
     )
     center / totalMass
-
+  
+  /** Relative attractor strength for a given point
+     */
   def attractorStrength(attractor: Body, position: Vector3D): Double =
     val virtualBody = Body(position)
     val total = calculateTotalForce(virtualBody)
     val attraction = GravitationalForce.calculate(virtualBody, attractor)
     (total dot attraction) / (total.norm * attraction.norm) * attraction.norm / total.norm
-
+  
+  /** Check whether a body has escaped from the system
+     */
   def hasEscaped(body: Body): Boolean =
     ((body.position - massCenter).unit dot body.velocity.unit) > 0.999 && body.pathCurvatureRadius > 1e17

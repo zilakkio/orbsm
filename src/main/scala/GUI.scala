@@ -25,7 +25,8 @@ import java.nio.file.{Path, Paths}
 import scala.collection.mutable.Buffer
 import scala.language.postfixOps
 
-
+/** The main object, run the program from here
+     */
 object GUI extends JFXApp3:
 
   def start() =
@@ -44,9 +45,13 @@ object GUI extends JFXApp3:
     var cursorDragEnterPixelPosition: Option[Vector3D] = None
     var selectedOrbit: Option[Orbit] = None
 
+    /** Calculate the radius of a body, in pixels
+     */
     def bodyDrawRadius(body: Body): Double =
       math.max(body.radius / sim.metersPerPixel, 3)
 
+    /** Return an array with all bodies on the screen
+     */
     def bodiesVisible: Array[Body] =
       sim.space.bodies.filter(b =>
         val pos = b.position
@@ -55,11 +60,15 @@ object GUI extends JFXApp3:
         minBound.x < pos.x && pos.x < maxBound.x && minBound.y < pos.y && pos.y < maxBound.y
       ).toArray
 
+    /** Return an array with all bodies that have not escaped
+     */
     def bodiesNotEscaped: Array[Body] =
       sim.space.bodies.filter(b =>
         !sim.space.hasEscaped(b)
       ).toArray
 
+    /** Change the zoom to fit all non-escaped bodies
+     */
     def fitZoom() =
       if sim.space.bodies.length >= 2 then
         val halfHeightZoomedAU = bodiesNotEscaped.map(body => (body.position - sim.centeringPosition).norm).max / Settings.metersPerAU
@@ -67,6 +76,8 @@ object GUI extends JFXApp3:
         sim.setZoom(halfHeightAU / halfHeightZoomedAU)
       else sim.setZoom(1.0)
 
+    /** Change the zoom to see only the selected body
+     */
     def focusZoom(body: Body) =
       if sim.space.bodies.length >= 2 then
         val halfWidthZoomedAU = sim.space.bodies
@@ -76,23 +87,35 @@ object GUI extends JFXApp3:
         sim.setZoom(halfWidthAU / halfWidthZoomedAU)
       else sim.setZoom(1.0)
 
+    /** Calculate the pixel (relative) velocity vector for a body
+     */
     def vVector(body: Body) = body.velocity.unit / (bodiesVisible.maxBy(_.velocity.norm).velocity.norm / body.velocity.norm)
 
+    /** Calculate the pixel (relative) acceleration vector for a body
+     */
     def aVector(body: Body) = body.acceleration.unit / (bodiesVisible.maxBy(_.acceleration.norm).acceleration.norm / body.acceleration.norm)
 
+    /** Center at the mass center and zoom out to fit all the non-escaped bodies
+     */
     def center() =
       sim.centering = Centering.MassCenter
       fitZoom()
 
+    /** Center at the selected body and zoom in to focus
+     */
     def focus() =
       if sim.space.bodies.nonEmpty then
         val selection = sim.selectedBody.getOrElse(sim.space.bodies.head)
         sim.centering = Centering.AtBody(selection)
         focusZoom(selection)
 
+    /** Re-center the camera to the cursor position
+     */
     def moveCamera() =
       sim.centering = Centering.Custom(sim.cursorPosition)
 
+    /** Open the body parameter edit dialog
+     */
     def editSelection() =
       sim.selectedBody match
         case Some(selection) =>
@@ -102,29 +125,26 @@ object GUI extends JFXApp3:
           sim.play()
         case None => ()
 
+    /** Copy the selected body
+     */
     def copySelection() =
       if sim.selectedBody.isDefined then
         copiedBody = Some(sim.selectedBody.get.copy())
 
+    /** Cut the selected body
+     */
     def cutSelection() =
       copySelection()
       sim.deleteSelection()
 
+    /** Paste the copied body at the cursor position
+     */
     def paste() =
       if copiedBody.isDefined then
         val pos = sim.vPixelToPosition(cursorPixelPosition)
         copiedBody.get.position = pos
         sim.space.addBody(copiedBody.get.copy())
 
-    def saveAs() =
-      val filechooser = new FileChooser:
-        title = "Select a JSON simulation file"
-        initialDirectory = currentDir.toFile
-        extensionFilters.add(ExtensionFilter("Simulation files", "*.orbsm"))
-      val file = filechooser.showSaveDialog(stage)
-      if file != null then
-        FileHandler.save(file.toString, sim)
-        sim.workingFile = file.toString
 
     var ctrlPressed = false
     var shiftPressed = false
@@ -179,8 +199,10 @@ object GUI extends JFXApp3:
 
     tabPane.tabs = tabSimulations.map(simToTab(_)).toSeq
 
-     def selectBody(body: Body) =
+    def selectBody(body: Body) =
       sim.select(body)
+      bodyPanel = Some(BodyPanel(sim.selectedBody.get))
+      bodyPanelContainer.children = List(bodyPanel.get)
 
     def deselectBody() =
       sim.deselect()
@@ -227,8 +249,7 @@ object GUI extends JFXApp3:
                 else
                   sim.space.removeBody(body)
 
-              else
-                if sim.selectableBody.isDefined then selectBody(sim.selectableBody.get)
+              else if sim.selectableBody.isDefined then selectBody(sim.selectableBody.get)
 
             case "SECONDARY" =>
               editSelection()
@@ -274,23 +295,43 @@ object GUI extends JFXApp3:
 
     val menuBar = new MenuBar()
 
+    /** Save as... dialog
+     */
+    def saveAs() =
+      val filechooser = new FileChooser:
+        title = "Select a JSON simulation file"
+        initialDirectory = currentDir.toFile
+        extensionFilters.add(ExtensionFilter("Simulation files", "*.orbsm"))
+      val file = filechooser.showSaveDialog(stage)
+      if file != null then
+        FileHandler.save(file.toString, sim)
+        sim.workingFile = file.toString
+
+    /** Save
+     */
     def save() =
       try
         FileHandler.save(sim.workingFile, sim)
       catch
         case _ => saveAs()
 
+    /** Open... dialog
+     */
     def load() =
-      val filechooser = new FileChooser:
-        title = "Select a JSON simulation file"
-        initialDirectory = currentDir.toFile
-        extensionFilters.add(ExtensionFilter("Simulation files", "*.orbsm"))
-      val file = filechooser.showOpenDialog(stage)
-      if file != null then
-        switchSim( FileHandler.load(file.toString) )
-        sim.workingFile = file.toString
-        center()
+      try
+        val filechooser = new FileChooser:
+          title = "Select a JSON simulation file"
+          initialDirectory = currentDir.toFile
+          extensionFilters.add(ExtensionFilter("Simulation files", "*.orbsm"))
+        val file = filechooser.showOpenDialog(stage)
+        if file != null then
+          switchSim(FileHandler.load(file.toString))
+          sim.workingFile = file.toString
+          center()
+      catch
+        case _ => AlertManager.alert("Invalid simulation file format")
 
+    // File
     val menuFile = new Menu("File"):
       val itemNew = new MenuItem("New empty simulation"):
         onAction = (event) =>
@@ -307,6 +348,7 @@ object GUI extends JFXApp3:
           load()
       items = List(itemNew, itemSave, itemSaveAs, itemOpen)
 
+    // Simulation
     val menuSim = new Menu("Simulation"):
       val itemStart = new MenuItem("Start/Stop \t\t\t Ctrl+SPACE"):
         onAction = (event) =>
@@ -322,6 +364,7 @@ object GUI extends JFXApp3:
           sim.setSpeed(sim.speed / 2)
       items = List(itemStart, itemReverse, itemSpeedUp, itemSlowDown)
 
+    // View
     val menuView = new Menu("View"):
       val itemCenter = new MenuItem("Center \t\t\t Ctrl+G"):
         onAction = (event) =>
@@ -344,6 +387,7 @@ object GUI extends JFXApp3:
 
       items = List(itemCenter, itemFocus, itemResetZoom, itemZoomIn, itemZoomOut, itemFullScreen)
 
+    // Body (appears only when a body is selected)
     val menuBody = new Menu("Body"):
       val itemEdit = new MenuItem("Edit \t\t\t RMB"):
         onAction = (event) =>
@@ -374,14 +418,14 @@ object GUI extends JFXApp3:
       graphic = Icons.get("focus-mode")
       onAction = (event =>
         center()
-      )
+        )
 
     val focusButton = new Button():
       tooltip = toolBar.barTooltip("Focus at the selected body")
       graphic = Icons.get("focus-3")
       onAction = (event =>
         focus()
-      )
+        )
 
     val runSelector = ToggleGroup()
 
@@ -390,7 +434,9 @@ object GUI extends JFXApp3:
       graphic = Icons.get("play")
       selected = true
       toggleGroup = runSelector
-      onAction = (event) => { sim.stopped = false; sim.reversed = false }
+      onAction = (event) => {
+        sim.stopped = false; sim.reversed = false
+      }
 
     val stopSelector = new ToggleButton():
       tooltip = toolBar.barTooltip("Pause")
@@ -402,15 +448,21 @@ object GUI extends JFXApp3:
       tooltip = toolBar.barTooltip("Run (reverse time)")
       graphic = Icons.get("play-reverse")
       toggleGroup = runSelector
-      onAction = (event) => { sim.stopped = false; sim.reversed = true }
+      onAction = (event) => {
+        sim.stopped = false; sim.reversed = true
+      }
 
     val speedUpButton = new Button():
       graphic = Icons.get("speed")
-      onAction = (event) => { sim.targetSpeed *= 1.4 }
+      onAction = (event) => {
+        sim.targetSpeed *= 1.4
+      }
 
     val slowDownButton = new Button():
       graphic = Icons.get("rewind")
-      onAction = (event) => { sim.targetSpeed *= .7143 }
+      onAction = (event) => {
+        sim.targetSpeed *= .7143
+      }
 
     val speedLabel = new Label():
       font = Settings.fontMono
@@ -418,10 +470,14 @@ object GUI extends JFXApp3:
       text = sim.speed.toString + " days/s"
       prefWidth = 100
 
+    /** A large toolbar separator
+     */
     def sep = new Separator():
       prefWidth = 70
       visible = false
 
+    /** A small toolbar separator
+     */
     def minisep = new Separator():
       prefWidth = 10
       visible = false
@@ -474,21 +530,21 @@ object GUI extends JFXApp3:
     // key release
     root.onKeyReleased = (event) =>
       event.getCode.toString match
-        case "Q" if ctrlPressed => Settings.tool = Tool.FreeBody                                                   // free body tool
-        case "A" if ctrlPressed => Settings.tool = Tool.AutoOrbit                                                  // auto-orbit tool
-        case "Z" if ctrlPressed => Settings.tool = Tool.Nothing                                                    // "nothing" tool
+        case "Q" if ctrlPressed => Settings.tool = Tool.FreeBody // free body tool
+        case "A" if ctrlPressed => Settings.tool = Tool.AutoOrbit // auto-orbit tool
+        case "Z" if ctrlPressed => Settings.tool = Tool.Nothing // "nothing" tool
 
-        case "SPACE" if ctrlPressed => sim.stopped = !sim.stopped                                             // start/stop
+        case "SPACE" if ctrlPressed => sim.stopped = !sim.stopped // start/stop
 
-        case "LEFT" if ctrlPressed => sim.setSpeed(sim.speed / 2)                                                     // slow down 0.5x
-        case "RIGHT" if ctrlPressed => sim.setSpeed(sim.speed * 2)                                                         // speed up 2x
+        case "LEFT" if ctrlPressed => sim.setSpeed(sim.speed / 2) // slow down 0.5x
+        case "RIGHT" if ctrlPressed => sim.setSpeed(sim.speed * 2) // speed up 2x
 
-        case "R" if ctrlPressed => sim.setZoom(1.0)                                                       // reset zoom
-        case "EQUALS" if ctrlPressed => sim.setZoom(2 * sim.targetZoom)                                                   // zoom 2x
-        case "MINUS" if ctrlPressed => sim.setZoom(0.5 * sim.targetZoom)                                                  // zoom 0.5x
+        case "R" if ctrlPressed => sim.setZoom(1.0) // reset zoom
+        case "EQUALS" if ctrlPressed => sim.setZoom(2 * sim.targetZoom) // zoom 2x
+        case "MINUS" if ctrlPressed => sim.setZoom(0.5 * sim.targetZoom) // zoom 0.5x
 
-        case "G" if ctrlPressed => center()                                                                   // center at mass center
-        case "V" if ctrlPressed => paste()                                                               // center at cursor position
+        case "G" if ctrlPressed => center() // center at mass center
+        case "V" if ctrlPressed => paste() // center at cursor position
         case "X" if ctrlPressed => cutSelection()
         case "C" if ctrlPressed => copySelection()
         case "D" if ctrlPressed => moveCamera()
@@ -498,8 +554,8 @@ object GUI extends JFXApp3:
         case "N" if ctrlPressed => switchSim(Simulation())
         case "O" if ctrlPressed => load()
 
-        case "F" if sim.selectedBody.isDefined && ctrlPressed => focus()                                      // center at selection
-        case "BACK_SPACE" if sim.selectedBody.isDefined && ctrlPressed => sim.deleteSelection()               // remove selection
+        case "F" if sim.selectedBody.isDefined && ctrlPressed => focus() // center at selection
+        case "BACK_SPACE" if sim.selectedBody.isDefined && ctrlPressed => sim.deleteSelection() // remove selection
 
         case "F11" => stage.fullScreen = !stage.isFullScreen
 
@@ -515,335 +571,327 @@ object GUI extends JFXApp3:
     var lastFPSDisplay = 0L
     var infoLabelText = ""
 
+    /** The main animation loop
+     */
     val timer = AnimationTimer { now =>
       try {
-      if sim.canvas.width.value != 0 && sim.canvas.height.value != 0 then {
-      if tabSimulations.isEmpty then switchSim(Simulation())
-      for tabSim <- tabSimulations do
-        val gc = tabSim.canvas.graphicsContext2D
+        if sim.canvas.width.value != 0 && sim.canvas.height.value != 0 then {
+          if tabSimulations.isEmpty then switchSim(Simulation())
+          for tabSim <- tabSimulations do
+            val gc = tabSim.canvas.graphicsContext2D
 
-        // calculate dt and tick
-        val deltaTime = (now - tabSim.lastFrame) / 1e9
-        if deltaTime < 1 then tabSim.tick(deltaTime)
-        if tabSim == sim then
-          simDT = deltaTime
-        tabSim.lastFrame = now
+            // calculate dt and tick
+            val deltaTime = (now - tabSim.lastFrame) / 1e9
+            if deltaTime < 1 then tabSim.tick(deltaTime)
+            if tabSim == sim then
+              simDT = deltaTime
+            tabSim.lastFrame = now
 
-      val simGC = sim.canvas.graphicsContext2D
+          val simGC = sim.canvas.graphicsContext2D
 
-      // calculate the current cursor position
-      sim.cursorPosition = sim.pixelToPosition(cursorPixelPosition.x, cursorPixelPosition.y)
+          // calculate the current cursor position
+          sim.cursorPosition = sim.pixelToPosition(cursorPixelPosition.x, cursorPixelPosition.y)
 
-      // calculate drag
-      if Settings.tool == Nothing && sim.selectableBody.isEmpty then
-        cursorDragEnterPixelPosition match
-          case Some(enterPixelPosition: Vector3D) =>
-            simGC.stroke = White
-            simGC.lineWidth = 5
-            simGC.beginPath()
-            simGC.moveTo(enterPixelPosition.x, enterPixelPosition.y)
-            simGC.lineTo(cursorPixelPosition.x, cursorPixelPosition.y)
-            simGC.stroke()
-            sim.centering = Centering.Custom(sim.centeringWhenEnteredDrag.get - (sim.cursorPosition - sim.pixelToPosition(enterPixelPosition.x, enterPixelPosition.y)))
-          case None => ()
+          // calculate drag
+          if Settings.tool == Nothing && sim.selectableBody.isEmpty then
+            cursorDragEnterPixelPosition match
+              case Some(enterPixelPosition: Vector3D) =>
+                simGC.stroke = White
+                simGC.lineWidth = 5
+                simGC.beginPath()
+                simGC.moveTo(enterPixelPosition.x, enterPixelPosition.y)
+                simGC.lineTo(cursorPixelPosition.x, cursorPixelPosition.y)
+                simGC.stroke()
+                sim.centering = Centering.Custom(sim.centeringWhenEnteredDrag.get - (sim.cursorPosition - sim.pixelToPosition(enterPixelPosition.x, enterPixelPosition.y)))
+              case None => ()
 
-      // empty space
-      simGC.fill = Purple
-      simGC.fillRect(0, 0, sim.canvas.width.value, sim.canvas.height.value)
+          // empty space
+          simGC.fill = Black
+          simGC.fillRect(0, 0, sim.canvas.width.value, sim.canvas.height.value)
 
-      // observable universe
-      simGC.fill = Black
-      val universeTopLeft = sim.positionToPixel(Vector3D(-2.909e+15 * Settings.metersPerAU, -2.909e+15 * Settings.metersPerAU))
-      val universeDiameter = 2 * 2.909e+15 * Settings.metersPerAU
-      simGC.fillOval(universeTopLeft.x, universeTopLeft.y, universeDiameter, universeDiameter)
+          // smooth camera movement
+          val oldZoom = sim.zoom
+          sim.zoom += 0.05 * (sim.targetZoom - sim.zoom) // zoom change animation
+          val correction = ((sim.cameraVelocity + sim.cameraAcceleration * simDT / 2) * (oldZoom / sim.zoom) * (sim.speed) *
+            simDT * 86400 * (if sim.stopped then 0 else 1)) / sim.metersPerPixel
+          sim.pixelOffset /= (oldZoom / sim.zoom) // zoom display bug
+          sim.pixelOffset += (sim.targetPixelOffset - sim.pixelOffset) * 0.05 // camera position animation
+          sim.pixelOffset += correction // fixed: moving camera offset bug (not really)
 
-      // smooth camera movement
-      val oldZoom = sim.zoom
-      sim.zoom += 0.05 * (sim.targetZoom - sim.zoom)                               // zoom change animation
-      val correction = ((sim.cameraVelocity + sim.cameraAcceleration * simDT / 2) * (oldZoom / sim.zoom) * (sim.speed) *
-        simDT * 86400 * (if sim.stopped then 0 else 1)) / sim.metersPerPixel
-      sim.pixelOffset /= (oldZoom / sim.zoom)                                      // fixed: zoom display bug
-      sim.pixelOffset += (sim.targetPixelOffset - sim.pixelOffset) * 0.05          // camera position animation
-      sim.pixelOffset += correction                                                // fixed: moving camera offset bug
-
-      // draw grid
-      simGC.stroke = Color.rgb(30, 30, 30)
-      simGC.lineWidth = 1
-      val w = sim.canvas.width.value
-      val h = sim.canvas.height.value
-      var cellW = sim.pixelsPerAU
-      val cellsPerScreenW = w / cellW
-      val cellsPerScreenH = h / cellW
-
-      val AUperCell = math.pow(10, math.floor(math.log10(cellsPerScreenW) - 0.8))  // scale, AU per cell
-      cellW *= AUperCell
-
-      val leftBound = - sim.pixelOffset.x + 0.5 * w
-      val x0 = leftBound % cellW
-      val upperBound = - sim.pixelOffset.y + 0.5 * h
-      val y0 = upperBound % cellW
-
-      if Settings.showGrid then
-        for
-          i <- 0 to (cellsPerScreenW / AUperCell).toInt
-          j <- 0 to (cellsPerScreenH / AUperCell).toInt
-        do
-          simGC.strokeLine(x0 + i * cellW, 0, x0 + i * cellW, h)
-          simGC.strokeLine(0, y0 + j * cellW, w, y0 + j * cellW)
-
-      // draw the tool-specific visuals
-
-      def dot(color: Color, coord: Vector3D) =
-        simGC.fill = color
-        simGC.fillOval(
-          coord.x - 5,
-          coord.y - 5,
-          10,
-          10
-        )
-
-      simGC.stroke = Gray
-      simGC.lineWidth = 2
-      Settings.tool match
-        case Tool.FreeBody =>    // free body cross
-          simGC.beginPath()
-          simGC.moveTo(cursorPixelPosition.x, 0)
-          simGC.lineTo(cursorPixelPosition.x, sim.canvas.height.value)
-          simGC.stroke()
-
-          simGC.beginPath()
-          simGC.moveTo(0, cursorPixelPosition.y)
-          simGC.lineTo(sim.canvas.width.value, cursorPixelPosition.y)
-          simGC.stroke()
-
-        case Tool.AutoOrbit if sim.selectedBody.isDefined =>    // auto-orbit ellipse
-          val st = sim.space.attractorStrength(sim.selectedBody.get, sim.vPixelToPosition(cursorPixelPosition))
-          simGC.stroke = if st > 0.9 || sim.stopped then Gray else Red
-          val parentPosition = sim.selectedBody.get.position
-          val baseDistance = (parentPosition - sim.vPixelToPosition(cursorDragEnterPixelPosition.getOrElse(cursorPixelPosition))).norm
-          val startPosition = sim.vPixelToPosition(cursorPixelPosition)
-          selectedOrbit = Some(Orbit(sim, baseDistance, startPosition, sim.selectedBody.get))
-          selectedOrbit.get.draw()
-
-        case _ =>
-          ()
-
-      // update the orbit precisions and draw the trails
-      sim.space.bodies.foreach(body =>
-
-        val orbitRadius = body.pathCurvatureRadius
-        val orbitLength = orbitRadius * 2 * Settings.pi
-        val fragmentLength = orbitLength / 256
-        val fragmentTime = fragmentLength / body.velocity.norm
-        val fragmentTicks = fragmentTime / sim.safeTimeStep
-        body.setOrbitPrecision((fragmentTicks * 4/3).toInt)
-
-        if Settings.showTrails then
-          val drawRadius = bodyDrawRadius(body)
+          // draw grid
+          simGC.stroke = Color.rgb(30, 30, 30)
           simGC.lineWidth = 1
-          var pos = sim.positionToPixel(body.position)
-          for i <- 1 to 255 do
-            if body.positionHistory.length > i then
-              val posNew: Vector3D = sim.positionToPixel(body.positionHistory(i))
-              simGC.stroke = body.color.interpolate(Transparent, 1 - i.toDouble / math.min(body.positionHistory.length, 255.0))
+          val w = sim.canvas.width.value
+          val h = sim.canvas.height.value
+          var cellW = sim.pixelsPerAU
+          val cellsPerScreenW = w / cellW
+          val cellsPerScreenH = h / cellW
+
+          val AUperCell = math.pow(10, math.floor(math.log10(cellsPerScreenW) - 0.8)) // scale, AU per cell
+          cellW *= AUperCell
+
+          val leftBound = -sim.pixelOffset.x + 0.5 * w
+          val x0 = leftBound % cellW
+          val upperBound = -sim.pixelOffset.y + 0.5 * h
+          val y0 = upperBound % cellW
+
+          if Settings.showGrid then
+            for
+              i <- 0 to (cellsPerScreenW / AUperCell).toInt
+              j <- 0 to (cellsPerScreenH / AUperCell).toInt
+            do
+              simGC.strokeLine(x0 + i * cellW, 0, x0 + i * cellW, h)
+              simGC.strokeLine(0, y0 + j * cellW, w, y0 + j * cellW)
+
+          // draw the tool-specific visuals
+          simGC.stroke = Gray
+          simGC.lineWidth = 2
+          Settings.tool match
+            case Tool.FreeBody => // free body cross
+              simGC.beginPath()
+              simGC.moveTo(cursorPixelPosition.x, 0)
+              simGC.lineTo(cursorPixelPosition.x, sim.canvas.height.value)
+              simGC.stroke()
 
               simGC.beginPath()
-              simGC.moveTo(pos.x, pos.y)
-              simGC.lineTo(posNew.x, posNew.y)
+              simGC.moveTo(0, cursorPixelPosition.y)
+              simGC.lineTo(sim.canvas.width.value, cursorPixelPosition.y)
               simGC.stroke()
-              pos = posNew
 
-          simGC.stroke = body.color
-          pos = sim.positionToPixel(body.position)
-          simGC.beginPath()
-          simGC.moveTo(pos.x, pos.y)
-          pos = sim.positionToPixel(body.positionHistory.last)
-          simGC.lineTo(pos.x, pos.y)
-          simGC.stroke()
-      )
+            case Tool.AutoOrbit if sim.selectedBody.isDefined => // auto-orbit ellipse
+              val st = sim.space.attractorStrength(sim.selectedBody.get, sim.vPixelToPosition(cursorPixelPosition))
+              simGC.stroke = if st > 0.9 || sim.stopped then Gray else Red
+              val parentPosition = sim.selectedBody.get.position
+              val baseDistance = (parentPosition - sim.vPixelToPosition(cursorDragEnterPixelPosition.getOrElse(cursorPixelPosition))).norm
+              val startPosition = sim.vPixelToPosition(cursorPixelPosition)
+              selectedOrbit = Some(Orbit(sim, baseDistance, startPosition, sim.selectedBody.get))
+              selectedOrbit.get.draw()
 
-      // draw bodies and vectors
-      sim.selectableBody = None
-      bodiesVisible
-        .sortWith((b1, b2) =>
-          if b1.position.z < b2.position.z then
-            true
-          else if b1.position.z == b2.position.z then
-            if b1.radius < b2.radius then
-              true
-            else if b1.radius == b2.radius then
-              b1.mass < b2.mass
-            else
-              false
-          else
-            false
-        )
-        .foreach(body =>
-          val drawRadius = bodyDrawRadius(body)
-          var pos = sim.positionToPixel(body.position)
+            case _ =>
+              ()
 
-          // vectors
-          simGC.lineWidth = 1
-          if Settings.showVelocityVectors then
-            val v = vVector(body) * (drawRadius + 20)
-            simGC.stroke = LightGreen
-            simGC.strokeLine(pos.x, pos.y, pos.x + v.x, pos.y + v.y)
-          if Settings.showAccelerationVectors then
-            val a = aVector(body) * (drawRadius + 20)
-            simGC.stroke = Magenta
-            simGC.strokeLine(pos.x, pos.y, pos.x + a.x, pos.y + a.y)
+          // update the orbit precisions and draw the trails
+          sim.space.bodies.foreach(body =>
 
-          // circle
-          simGC.fill = body.color
-          simGC.fillOval(
-            pos.x - drawRadius,
-            pos.y - drawRadius,
-            drawRadius * 2,
-            drawRadius * 2
+            val orbitRadius = body.pathCurvatureRadius
+            val orbitLength = orbitRadius * 2 * Settings.pi
+            val fragmentLength = orbitLength / 256
+            val fragmentTime = fragmentLength / body.velocity.norm
+            val fragmentTicks = fragmentTime / sim.safeTimeStep
+            body.setOrbitPrecision((fragmentTicks * 4 / 3).toInt)
+
+            if Settings.showTrails then
+              val drawRadius = bodyDrawRadius(body)
+              simGC.lineWidth = 1
+              var pos = sim.positionToPixel(body.position)
+              for i <- 1 to 255 do
+                if body.positionHistory.length > i then
+                  val posNew: Vector3D = sim.positionToPixel(body.positionHistory(i))
+                  simGC.stroke = body.color.interpolate(Transparent, 1 - i.toDouble / math.min(body.positionHistory.length, 255.0))
+
+                  simGC.beginPath()
+                  simGC.moveTo(pos.x, pos.y)
+                  simGC.lineTo(posNew.x, posNew.y)
+                  simGC.stroke()
+                  pos = posNew
+
+              simGC.stroke = body.color
+              pos = sim.positionToPixel(body.position)
+              simGC.beginPath()
+              simGC.moveTo(pos.x, pos.y)
+              pos = sim.positionToPixel(body.positionHistory.last)
+              simGC.lineTo(pos.x, pos.y)
+              simGC.stroke()
           )
 
-          // mark a body as selectable (if there are multiple, choose by multiselection mode)
-          def distance(b: Body) = (cursorPixelPosition - sim.positionToPixel(b.position))
-          val d = distance(body).noz.norm
-          if d <= drawRadius + 0.01 * sim.canvas.width.value then
-            sim.selectableBody match
-              case Some(prevBody) =>
-                if
-                  Settings.multiSelectMode match
-                    case Heaviest => prevBody.mass < body.mass
-                    case Largest => prevBody.radius < body.radius
-                    case Closest2D => d < distance(prevBody).noz.norm
-                    case Closest3D => distance(body).norm < distance(prevBody).norm
-                then sim.selectableBody = Some(body)
-              case None => sim.selectableBody = Some(body)
-        )
-
-      // outline the selectable body and write its name
-      sim.selectableBody.foreach( selection =>
-        val pos = sim.positionToPixel(selection.position)
-        simGC.stroke = Gray
-        simGC.fill = selection.color
-        val drawRadius = bodyDrawRadius(selection)
-        simGC.strokeRoundRect(
-          pos.x - drawRadius - 10,
-          pos.y - drawRadius - 10,
-          20 + 2 * drawRadius,
-          20 + 2 * drawRadius,
-          10,
-          10
-        )
-        simGC.fillText(selection.name, pos.x - drawRadius - 10, pos.y - drawRadius - 15)
-      )
-
-      // outline the selected body
-      simGC.stroke = Red
-      sim.selectedBody match
-        case Some(body) =>
-          if !sim.space.bodies.contains(body) then
-            deselectBody()
-            if sim.centering == AtBody(body) then
-              sim.centering = Centering.Custom(body.position)
-            end if
-          else
-            val pos = sim.positionToPixel(body.position)
-            val drawRadius = bodyDrawRadius(body)
-            simGC.strokeRoundRect(
-            pos.x - drawRadius - 10,
-            pos.y - drawRadius - 10,
-            20 + 2 * drawRadius,
-            20 + 2 * drawRadius,
-            10,
-            10
+          // draw bodies and vectors
+          sim.selectableBody = None
+          bodiesVisible
+            .sortWith((b1, b2) =>
+              if b1.position.z < b2.position.z then
+                true
+              else if b1.position.z == b2.position.z then
+                if b1.radius < b2.radius then
+                  true
+                else if b1.radius == b2.radius then
+                  b1.mass < b2.mass
+                else
+                  false
+              else
+                false
             )
-        case None => ()
+            .foreach(body =>
+              val drawRadius = bodyDrawRadius(body)
+              var pos = sim.positionToPixel(body.position)
 
-      // update the GUI
-      toolBar.update()
-      speedLabel.text = sim.speed match
-        case s if s < 1/1440.0 => f"${(sim.speed * 86400)}%.2f s/s"
-        case s if s < 1/24.0 => f"${(sim.speed * 1440)}%.2f min/s"
-        case s if s < 1 => f"${(sim.speed * 24)}%.2f h/s"
-        case s if s < 365 => f"${(sim.speed)}%.2f days/s"
-        case s => f"${(sim.speed / 365)}%.2f y/s"
-      if sim.getAverageFPS < sim.fps then speedLabel.textFill = Color.Red else speedLabel.textFill = Color.White
-      runSelector.selectToggle(if sim.stopped then stopSelector else if sim.reversed then reverseSelector else forwardSelector)
-      if Settings.tool != AutoOrbit || sim.selectedBody.isEmpty then selectedOrbit = None
+              // vectors
+              simGC.lineWidth = 1
+              if Settings.showVelocityVectors then
+                val v = vVector(body) * (drawRadius + 20)
+                simGC.stroke = LightGreen
+                simGC.strokeLine(pos.x, pos.y, pos.x + v.x, pos.y + v.y)
+              if Settings.showAccelerationVectors then
+                val a = aVector(body) * (drawRadius + 20)
+                simGC.stroke = Magenta
+                simGC.strokeLine(pos.x, pos.y, pos.x + a.x, pos.y + a.y)
 
-      if sim.selectedBody.isEmpty then
-        bodyPanel = None
-        if menuBar.menus.length == 4 then
-          menuBar.menus = List(menuFile, menuSim, menuView)
-        bodyPanelContainer.children = List()
-      if sim.selectedBody.isDefined && menuBar.menus.length == 3 then
-        menuBar.menus = List(menuFile, menuSim, menuView, menuBody)
-      if sim.selectedBody.isDefined && bodyPanelContainer.children.isEmpty then
-        bodyPanel = Some(BodyPanel(sim.selectedBody.get))
-        bodyPanelContainer.children = List(bodyPanel.get)
-      if sim.selectedBody.isDefined && bodyPanel.isDefined then
-        bodyPanel.get.update(sim)
-      val tab = getTab(sim)
-      if tab.getText != sim.name then tab.setText(sim.name)
+              // circle
+              simGC.fill = body.color
+              simGC.fillOval(
+                pos.x - drawRadius,
+                pos.y - drawRadius,
+                drawRadius * 2,
+                drawRadius * 2
+              )
 
+              // mark a body as selectable (if there are multiple, choose by multiselection mode)
+              def distance(b: Body) = (cursorPixelPosition - sim.positionToPixel(b.position))
 
-      // draw the scale reference
-      if Settings.showGrid then
-        simGC.fill = White
-        simGC.font = Settings.fontMono
-        val label = Settings.formatScale(AUperCell)
-        simGC.fillText(label, 20, h - 70)
-        simGC.stroke = White
-        simGC.lineWidth = 2
-        simGC.strokeLine(20, h - 55, 20 + cellW, h - 55)
+              val d = distance(body).noz.norm
+              if d <= drawRadius + 0.01 * sim.canvas.width.value then
+                sim.selectableBody match
+                  case Some(prevBody) =>
+                    if
+                      Settings.multiSelectMode match
+                        case Heaviest => prevBody.mass < body.mass
+                        case Largest => prevBody.radius < body.radius
+                        case Closest2D => d < distance(prevBody).noz.norm
+                        case Closest3D => distance(body).norm < distance(prevBody).norm
+                    then sim.selectableBody = Some(body)
+                  case None => sim.selectableBody = Some(body)
+            )
 
-      // display FPS
-      if Settings.showInfo then
-        if now - lastFPSDisplay > 20000000 then
-          lastFPSDisplay = now
-          val avg = sim.getAverageFPS
-          infoLabelText = f"${(avg).round.toString} FPS"
-
-        simGC.fill = White
-        sim.recordFPS(1.0 / simDT)
-        simGC.font = Settings.fontMono
-        simGC.fillText(
-          infoLabelText,
-          20, 30
-        )
-
-        if sim.getAverageFPS < 120 then
-          simGC.fill = Yellow
-          simGC.fillText(
-          "\nOptimizing...",
-          20, 30
+          // outline the selectable body and write its name
+          sim.selectableBody.foreach(selection =>
+            val pos = sim.positionToPixel(selection.position)
+            simGC.stroke = Gray
+            simGC.fill = selection.color
+            val drawRadius = bodyDrawRadius(selection)
+            simGC.strokeRoundRect(
+              pos.x - drawRadius - 10,
+              pos.y - drawRadius - 10,
+              20 + 2 * drawRadius,
+              20 + 2 * drawRadius,
+              10,
+              10
+            )
+            simGC.fillText(selection.name, pos.x - drawRadius - 10, pos.y - drawRadius - 15)
           )
 
-        if ctrlPressed then
-          simGC.textAlign = TextAlignment.Right
-          simGC.fill = White
-          simGC.fillText(Settings.ctrlHelp(sim), sim.canvas.width.value - 20, 30)
-          simGC.textAlign = TextAlignment.Left
+          // outline the selected body
+          simGC.stroke = Red
+          sim.selectedBody match
+            case Some(body) =>
+              if !sim.space.bodies.contains(body) then
+                deselectBody()
+                if sim.centering == AtBody(body) then
+                  sim.centering = Centering.Custom(body.position)
+                end if
+              else
+                val pos = sim.positionToPixel(body.position)
+                val drawRadius = bodyDrawRadius(body)
+                simGC.strokeRoundRect(
+                  pos.x - drawRadius - 10,
+                  pos.y - drawRadius - 10,
+                  20 + 2 * drawRadius,
+                  20 + 2 * drawRadius,
+                  10,
+                  10
+                )
+            case None => ()
 
-        if sim.selectedBody.isDefined then
-          simGC.fill = White
-          simGC.fillText(f"\n${sim.selectedBody.get}", 20, 30)
+          // update the GUI
+          toolBar.update()
+          speedLabel.text = sim.speed match
+            case s if s < 1 / 1440.0 => f"${(sim.speed * 86400)}%.2f s/s"
+            case s if s < 1 / 24.0 => f"${(sim.speed * 1440)}%.2f min/s"
+            case s if s < 1 => f"${(sim.speed * 24)}%.2f h/s"
+            case s if s < 365 => f"${(sim.speed)}%.2f days/s"
+            case s => f"${(sim.speed / 365)}%.2f y/s"
+          if sim.getAverageFPS < sim.fps then speedLabel.textFill = Color.Red else speedLabel.textFill = Color.White
+          runSelector.selectToggle(if sim.stopped then stopSelector else if sim.reversed then reverseSelector else forwardSelector)
+          if Settings.tool != AutoOrbit || sim.selectedBody.isEmpty then selectedOrbit = None
 
-        if selectedOrbit.isDefined then
-          simGC.fill = White
-          simGC.fillText(f"\n\n\n\n\n\n\n\n\n${selectedOrbit.get}", 20, 30)
+          if sim.selectedBody.isEmpty then
+            bodyPanel = None
+            if menuBar.menus.length == 4 then
+              menuBar.menus = List(menuFile, menuSim, menuView)
+            bodyPanelContainer.children = List()
+          if sim.selectedBody.isDefined && menuBar.menus.length == 3 then
+            menuBar.menus = List(menuFile, menuSim, menuView, menuBody)
+          if sim.selectedBody.isDefined && bodyPanelContainer.children.isEmpty then
+            bodyPanel = Some(BodyPanel(sim.selectedBody.get))
+            bodyPanelContainer.children = List(bodyPanel.get)
+          if sim.selectedBody.isDefined && bodyPanel.isDefined then
+            bodyPanel.get.update(sim)
+          val tab = getTab(sim)
+          if tab.getText != sim.name then tab.setText(sim.name)
 
-        simGC.font = Settings.fontMain
 
-      // alerts
-      val alerts = AlertManager.get()
-      for i <- alerts.indices do
-        val alert = alerts(i)
-        simGC.fill = jfxColor2sfx(alert.color.opacity(alert.opacity))
-        simGC.fillRoundRect(sim.canvas.width.value - 420 + alert.shift, sim.canvas.height.value - 40 - (i * 60) - toolBar.height.value, 400, 40, 20, 20)
-        simGC.fill = jfxColor2sfx(Color.White.opacity(alert.opacity))
-        simGC.font = Settings.fontMono
-        simGC.fillText(alert.message, sim.canvas.width.value - 400 + alert.shift, sim.canvas.height.value - 15 - (i * 60) - toolBar.height.value, 360)
-     }}
-      catch
+          // draw the scale reference
+          if Settings.showGrid then
+            simGC.fill = White
+            simGC.font = Settings.fontMono
+            val label = Settings.formatScale(AUperCell)
+            simGC.fillText(label, 20, h - 70)
+            simGC.stroke = White
+            simGC.lineWidth = 2
+            simGC.strokeLine(20, h - 55, 20 + cellW, h - 55)
+
+          // display FPS
+          if Settings.showInfo then
+            if now - lastFPSDisplay > 20000000 then
+              lastFPSDisplay = now
+              val avg = sim.getAverageFPS
+              infoLabelText = f"${(avg).round.toString} FPS"
+
+            simGC.fill = White
+            sim.recordFPS(1.0 / simDT)
+            simGC.font = Settings.fontMono
+            simGC.fillText(
+              infoLabelText,
+              20, 30
+            )
+
+            // Optimizing... label
+            if sim.getAverageFPS < sim.fps then
+              simGC.fill = Yellow
+              simGC.fillText(
+                "\nOptimizing...",
+                20, 30
+              )
+
+            // Ctrl help menu (keyboard shortcut list)
+            if ctrlPressed then
+              simGC.textAlign = TextAlignment.Right
+              simGC.fill = White
+              simGC.fillText(Settings.ctrlHelp(sim), sim.canvas.width.value - 20, 30)
+              simGC.textAlign = TextAlignment.Left
+
+            // display the selected body parameters
+            if sim.selectedBody.isDefined then
+              simGC.fill = White
+              simGC.fillText(f"\n${sim.selectedBody.get}", 20, 30)
+
+            // display the orbit parameters
+            if selectedOrbit.isDefined then
+              simGC.fill = White
+              simGC.fillText(f"\n\n\n\n\n\n\n\n\n${selectedOrbit.get}", 20, 30)
+
+            simGC.font = Settings.fontMain
+
+          // display alerts
+          val alerts = AlertManager.get()
+          for i <- alerts.indices do
+            val alert = alerts(i)
+            simGC.fill = jfxColor2sfx(alert.color.opacity(alert.opacity))
+            simGC.fillRoundRect(sim.canvas.width.value - 420 + alert.shift, sim.canvas.height.value - 40 - (i * 60) - toolBar.height.value, 400, 40, 20, 20)
+            simGC.fill = jfxColor2sfx(Color.White.opacity(alert.opacity))
+            simGC.font = Settings.fontMono
+            simGC.fillText(alert.message, sim.canvas.width.value - 400 + alert.shift, sim.canvas.height.value - 15 - (i * 60) - toolBar.height.value, 360)
+        }
+      }
+      catch // unhandled exceptions = alerts
         case e => AlertManager.alert(e.toString)
     }
 

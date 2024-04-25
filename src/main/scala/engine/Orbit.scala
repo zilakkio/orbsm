@@ -25,13 +25,19 @@ case class Orbit(val sim: Simulation, val baseDistance: Double, val launchPositi
   val angle = math.toDegrees(math.atan2(focus.y - center.y, focus.x - center.x))
   val pericenter = math.min(launchDistance, baseDistance)
   val apocenter = math.max(launchDistance, baseDistance)
-
+  
+  /** Convert a position vector to pixel position
+     */
   private def px(pos: Vector3D): Vector3D =
     sim.positionToPixel(pos)
-
+  
+  /** Convert a length to pixel length
+     */
   private def px(a: Double): Double =
     a / sim.metersPerPixel
-
+  
+  /** Draw the orbit
+     */
   def draw() =
     gc.save()
     gc.translate(px(center).x, px(center).y)
@@ -43,7 +49,9 @@ case class Orbit(val sim: Simulation, val baseDistance: Double, val launchPositi
       gc.font = Settings.fontMono
       gc.fillText(f" ${Settings.formatMeters(semiMajor)}", -px(semiMajor), 0)
     gc.restore()
-
+    
+  /** The initial velocity
+     */
   def velocity: Vector3D =
     val mu = GravitationalForce.G * parent.mass
     val r = (apsis - focus).norm

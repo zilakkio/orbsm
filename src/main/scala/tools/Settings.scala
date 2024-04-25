@@ -3,7 +3,8 @@ package tools
 import engine.Body
 import scalafx.scene.text.Font
 
-
+/** An object for global (simulation-independent) settings, constants and utility functions
+     */
 object Settings:
   var theme = "/styles/cupertino-dark.css"
 
@@ -21,12 +22,14 @@ object Settings:
   var showTrails = true
   var showGrid = true
   var showInfo = true
-  
+
   var multiSelectMode = MultiSelectMode.Heaviest
   var tool = Tool.Nothing
-  
+
   val random = scala.util.Random()
 
+  /** Format a distance in AU for the scale label
+     */
   def formatScale(distanceAU: Double) =
     distanceAU match
       case x if x > 9000000 => f"1e${math.log10(x).round} AU"
@@ -34,6 +37,8 @@ object Settings:
       case x if x > 0.09 => f"$x AU"
       case x => f"${(x * 150000000).toInt} km"
 
+  /** Format a distance in meters for the orbit radius display
+     */
   def formatMeters(distance: Double) =
     val au = distance / metersPerAU
     au match
@@ -44,6 +49,8 @@ object Settings:
       case x if x < 0.1 => f"${distance / 1000}%.0f km"
       case _ => ""
 
+  /** Generate a help menu for keyboard shortcuts
+     */
   def ctrlHelp(sim: Simulation) =
     val bodySpecific = if sim.selectedBody.isDefined then
       val name = sim.selectedBody.get.name

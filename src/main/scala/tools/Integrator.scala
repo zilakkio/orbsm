@@ -1,5 +1,7 @@
 package tools
 
+/** Numerical integration algorithms
+     */
 enum Integrator:
   case ExplicitEuler
   case SemiImplicitEuler

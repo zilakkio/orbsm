@@ -8,10 +8,12 @@ import scalafx.geometry.Insets
 import scalafx.stage.{Stage, StageStyle}
 import tools.{Settings, Simulation}
 
+/** The dialog that appears when a new body is created, or when the body parameters are edited
+     */
 class BodyDialog(
                   ownerStage: Stage,
                   body: Body
-                 ) extends Dialog[Option[Boolean]]:
+                ) extends Dialog[Option[Boolean]]:
   initOwner(ownerStage)
   headerText = body.name
 
@@ -20,16 +22,32 @@ class BodyDialog(
 
   dialogPane().buttonTypes = Seq(createButtonType, cancelButtonType)
 
-  val xPosField = new TextField { text = body.positionAU.x.toString; promptText = "x, AU" }
-  val yPosField = new TextField { text = body.positionAU.y.toString; promptText = "y, AU" }
-  val zPosField = new TextField { text = body.positionAU.z.toString; promptText = "z, AU" }
+  val xPosField = new TextField {
+    text = body.positionAU.x.toString; promptText = "x, AU"
+  }
+  val yPosField = new TextField {
+    text = body.positionAU.y.toString; promptText = "y, AU"
+  }
+  val zPosField = new TextField {
+    text = body.positionAU.z.toString; promptText = "z, AU"
+  }
 
-  val xVelField = new TextField { text = body.velocity.x.toString; promptText = "Vx, m/s" }
-  val yVelField = new TextField { text = body.velocity.y.toString; promptText = "Vy, m/s" }
-  val zVelField = new TextField { text = body.velocity.z.toString; promptText = "Vz, m/s" }
+  val xVelField = new TextField {
+    text = body.velocity.x.toString; promptText = "Vx, m/s"
+  }
+  val yVelField = new TextField {
+    text = body.velocity.y.toString; promptText = "Vy, m/s"
+  }
+  val zVelField = new TextField {
+    text = body.velocity.z.toString; promptText = "Vz, m/s"
+  }
 
-  val massField = new TextField { text = body.massEarths.toString; promptText = "m, earths" }
-  val radiusField = new TextField { text = body.radiusEarths.toString; promptText = "r, earths" }
+  val massField = new TextField {
+    text = body.massEarths.toString; promptText = "m, earths"
+  }
+  val radiusField = new TextField {
+    text = body.radiusEarths.toString; promptText = "r, earths"
+  }
 
   val grid = new GridPane():
     hgap = 10
@@ -85,7 +103,9 @@ class BodyDialog(
     val window = event.getSource.asInstanceOf[javafx.stage.Window]
     window.asInstanceOf[javafx.stage.Stage].initStyle(StageStyle.Undecorated)
   }
-
+  
+  /** Show the dialog, process the input
+     */
   def process(sim: Simulation) =
     val stop = sim.stopped
     sim.pause()

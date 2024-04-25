@@ -1,13 +1,16 @@
 package tools
+
 import java.nio.file.{Files, Paths}
 import upickle.default.*
 import engine.*
+import gui.AlertManager
 import scalafx.scene.paint.Color.*
 import scalafx.scene.paint.Color
 
 import java.nio.charset.StandardCharsets
 
-
+/** Read/write a Vector3D
+     */
 implicit val vectorRW: ReadWriter[Vector3D] = readwriter[ujson.Value].bimap[Vector3D](
   vector3D => ujson.Arr(vector3D.x, vector3D.y, vector3D.z),
   json => {
@@ -21,6 +24,8 @@ implicit val vectorRW: ReadWriter[Vector3D] = readwriter[ujson.Value].bimap[Vect
   }
 )
 
+/** Read/write a Color
+     */
 implicit val colorRW: ReadWriter[Color] = readwriter[ujson.Value].bimap[Color](
   color => {
     val red = (color.red * 255).round.toInt
@@ -38,6 +43,8 @@ implicit val colorRW: ReadWriter[Color] = readwriter[ujson.Value].bimap[Color](
   }
 )
 
+/** Read/write a Body
+     */
 implicit val bodyRW: ReadWriter[Body] = readwriter[ujson.Value].bimap[Body](
   body => ujson.Obj(
     "name" -> body.name,
@@ -63,6 +70,8 @@ implicit val bodyRW: ReadWriter[Body] = readwriter[ujson.Value].bimap[Body](
   }
 )
 
+/** Read/write a SimulationSpace
+     */
 implicit val spaceRW: ReadWriter[SimulationSpace] = readwriter[ujson.Value].bimap[SimulationSpace](
   space => ujson.Obj(
     "bodies" -> ujson.Arr(space.bodies.map(body => writeJs(body)(bodyRW)).toArray: _*),
@@ -77,16 +86,19 @@ implicit val spaceRW: ReadWriter[SimulationSpace] = readwriter[ujson.Value].bima
     space
   }
 )
-  
+
+/** Read/write a Simulation
+     */
 implicit val simulationRW: ReadWriter[Simulation] = readwriter[ujson.Value].bimap[Simulation](
-  sim => ujson.Obj(
-    "name" -> sim.name,
-    "fps" -> sim.fps,
-    "timestep" -> sim.safeTimeStep,
-    "speed" -> sim.targetSpeed,
-    "stopped" -> sim.stopped,
-    "space" -> writeJs(sim.space)(spaceRW)
-  ),
+  sim =>
+    ujson.Obj(
+      "name" -> sim.name,
+      "fps" -> sim.fps,
+      "timestep" -> sim.safeTimeStep,
+      "speed" -> sim.targetSpeed,
+      "stopped" -> sim.stopped,
+      "space" -> writeJs(sim.space)(spaceRW)
+    ),
   json => {
     val obj = json.obj
     val sim = Simulation()

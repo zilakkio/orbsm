@@ -1,4 +1,5 @@
 package gui
+
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.{Insets, Point2D}
 import scalafx.scene.control.{Button, Label, Separator, ToggleButton, ToggleGroup, ToolBar, Tooltip}
@@ -6,6 +7,8 @@ import scalafx.util.Duration
 import tools.MultiSelectMode.{Closest2D, Closest3D, Heaviest, Largest}
 import tools.{MultiSelectMode, Settings, Tool}
 
+/** Toolbar GUI class
+     */
 class MainToolBar extends ToolBar:
 
   padding = Insets(10, 10, 10, 10)
@@ -44,10 +47,6 @@ class MainToolBar extends ToolBar:
     selected = true
     onAction = (event) => Settings.multiSelectMode = Closest2D
 
-/*  val closest3DSelector = new ToggleButton("p3"):
-    toggleGroup = multiSelector
-    onAction = (event) => Settings.multiSelectMode = Closest3D*/
-
   val heaviestSelector = new ToggleButton():
     tooltip = barTooltip("Prioritize selection by mass")
     graphic = Icons.get("weight")
@@ -74,7 +73,7 @@ class MainToolBar extends ToolBar:
     selected = Settings.showVelocityVectors
     onAction = (event =>
       Settings.showVelocityVectors = selected.value
-    )
+      )
 
   val vectorAccelerationToggle = new ToggleButton():
     tooltip = barTooltip("Acceleration vectors (magenta)")
@@ -82,7 +81,7 @@ class MainToolBar extends ToolBar:
     selected = Settings.showAccelerationVectors
     onAction = (event =>
       Settings.showAccelerationVectors = selected.value
-    )
+      )
 
   val trailToggle = new ToggleButton():
     tooltip = barTooltip("Trails/orbits")
@@ -90,7 +89,7 @@ class MainToolBar extends ToolBar:
     selected = Settings.showTrails
     onAction = (event =>
       Settings.showTrails = selected.value
-    )
+      )
 
   val gridToggle = new ToggleButton():
     tooltip = barTooltip("Grid and scale")
@@ -98,7 +97,7 @@ class MainToolBar extends ToolBar:
     selected = Settings.showGrid
     onAction = (event =>
       Settings.showGrid = selected.value
-    )
+      )
 
   val infoToggle = new ToggleButton():
     tooltip = barTooltip("Information")
@@ -106,13 +105,15 @@ class MainToolBar extends ToolBar:
     selected = Settings.showInfo
     onAction = (event =>
       Settings.showInfo = selected.value
-    )
+      )
 
   items = ObservableBuffer(minisep, Label("Place"), minisep, freeBodySelector, autoOrbitSelector, nothingSelector, sep, Label("Select"), minisep,
-      closest2DSelector, heaviestSelector, largestSelector, sep, Label("Display"), minisep,
-      vectorVelocityToggle, vectorAccelerationToggle, trailToggle, gridToggle, infoToggle, sep, Label("View"), minisep,
+    closest2DSelector, heaviestSelector, largestSelector, sep, Label("Display"), minisep,
+    vectorVelocityToggle, vectorAccelerationToggle, trailToggle, gridToggle, infoToggle, sep, Label("View"), minisep,
   )
-  
+
+  /** Updates the toggles based on current settings
+     */
   def update() =
     Settings.tool match
       case Tool.Nothing => nothingSelector.selected = true
